@@ -4,3 +4,4 @@ markdown==3.7
 pynput==1.7.7
 llama-cpp-python
 huggingface_hub==0.25.1
+pyaudio==0.2.14
