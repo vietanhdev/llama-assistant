@@ -2,3 +2,4 @@ PyQt6==6.7.1
 SpeechRecognition==3.10.4
 markdown==3.7
 mlx-lm==0.18.2
+pynput==1.7.7

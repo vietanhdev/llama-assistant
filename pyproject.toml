@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llama-assistant"
+authors = [
+    {name = "Viet-Anh Nguyen", email = "vietanh.dev@gmail.com"},
+]
+description = "An AI assistant powered by Llama models"
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["AI", "assistant", "Llama", "PyQt6"]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "PyQt6",
+    "markdown",
+    "mlx_lm",
+    "pynput",
+    "SpeechRecognition",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/vietanhdev/llama-assistant"
+"Bug Tracker" = "https://github.com/vietanhdev/llama-assistant/issues"
+
+[project.scripts]
+llama-assistant = "llama_assistant.main:main"
+
+[tool.setuptools_scm]
+write_to = "llama_assistant/_version.py"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["llama_assistant*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"llama_assistant.resources" = ["*.png"]
