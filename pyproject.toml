@@ -25,7 +25,7 @@ classifiers = [
 dependencies = [
     "PyQt6",
     "markdown",
-    "mlx_lm",
+    "llama-cpp-python",
     "pynput",
     "SpeechRecognition",
 ]

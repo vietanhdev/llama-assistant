@@ -1,6 +1,6 @@
 import json
 import markdown
-from mlx_lm import load, generate
+from llama_cpp import Llama
 from pathlib import Path
 
 from PyQt6.QtWidgets import (
@@ -59,7 +59,10 @@ class LlamaAssistant(QMainWindow):
         self.image_label = None
 
     def load_model(self):
-        self.model, self.tokenizer = load("mlx-community/Llama-3.2-1B-Instruct-4bit")
+        self.model = Llama.from_pretrained(
+            repo_id="hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF",
+            filename="*q4_k_m.gguf",
+        )
 
     def load_settings(self):
         home_dir = Path.home()
@@ -350,18 +353,16 @@ class LlamaAssistant(QMainWindow):
         elif task == "write email":
             prompt = f"Write an email about: {message}"
 
-        if (
-            hasattr(self.tokenizer, "apply_chat_template")
-            and self.tokenizer.chat_template is not None
-        ):
-            messages = [{"role": "user", "content": prompt}]
-            prompt = self.tokenizer.apply_chat_template(
-                messages, tokenize=False, add_generation_prompt=True
-            )
-
-        response = generate(
-            self.model, self.tokenizer, prompt=prompt, max_tokens=2048, verbose=False
+        output = self.model.create_chat_completion(
+            messages = [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
         )
+        response = output["choices"][0]["message"]["content"]
+
         self.last_response = response
 
         self.chat_box.append(f"<b>You:</b> {message}")
