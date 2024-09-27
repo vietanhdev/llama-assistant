@@ -20,6 +20,16 @@ This assistant can run offline on your local machine, and it respects your priva
 
 ![Screenshot](https://raw.githubusercontent.com/vietanhdev/llama-assistant/refs/heads/main/screenshot.png)
 
+## TODO
+
+- [ ] Support other text models: Llama 3.x.
+- [ ] Support multimodal models: LLaVA, Llama 3.2 + Vision.
+- [ ] Add offline STT support: WhisperCPP.
+- [ ] Add wake word detection: "Hey Llama!".
+- [ ] Knowledge database.
+- [ ] Video interaction support.
+- [ ] Plugin system for extensibility.
+
 ## Features
 
 - 🎙️ Voice recognition for hands-free interaction
@@ -43,6 +53,7 @@ This assistant can run offline on your local machine, and it respects your priva
 
 ```bash
 pip install llama-assistant
+pip install pyaudio
 ```
 
 **Or install from source:**
@@ -58,6 +69,7 @@ pip install llama-assistant
 
    ```bash
    pip install -r requirements.txt
+   pip install pyaudio
    ```
 
 **Speed Hack for Apple Silicon (M1, M2, M3) users:** 🔥🔥🔥
@@ -118,6 +130,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-Viet-Anh Nguyen - [@vietanhdev](https://github.com/vietanhdev)
-
-Project Link: [https://github.com/vietanhdev/llama-assistant](https://github.com/vietanhdev/llama-assistant)
+- Viet-Anh Nguyen - [vietanhdev](https://github.com/vietanhdev), [contact form](https://www.vietanh.dev/contact).
+- Project Link: [https://github.com/vietanhdev/llama-assistant](https://github.com/vietanhdev/llama-assistant)
