@@ -11,7 +11,7 @@ This assistant can run offline on your local machine, and it respects your priva
 
 **Only support macOS for now. Windows and Linux support are coming soon.**
 
-![Screenshot](screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/vietanhdev/llama-assistant/refs/heads/main/screenshot.png)
 
 ## Features
 
