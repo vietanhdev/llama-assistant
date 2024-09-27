@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llama-assistant"
-version = "0.1.12"
+version = "0.1.13"
 authors = [
     {name = "Viet-Anh Nguyen", email = "vietanh.dev@gmail.com"},
 ]
@@ -32,6 +32,7 @@ dependencies = [
     "pynput",
     "SpeechRecognition",
     "huggingface_hub",
+    "pyaudio",
 ]
 dynamic = []
 
