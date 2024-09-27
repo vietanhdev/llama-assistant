@@ -4,3 +4,4 @@ __pycache__
 .DS_Store
 /build
 /dist
+llama_assistant/_version.py
