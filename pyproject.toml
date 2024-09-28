@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llama-assistant"
-version = "0.1.16"
+version = "0.1.17"
 authors = [
     {name = "Viet-Anh Nguyen", email = "vietanh.dev@gmail.com"},
 ]
@@ -32,6 +32,7 @@ dependencies = [
     "pynput",
     "SpeechRecognition",
     "huggingface_hub",
+    "openwakeword",
 ]
 dynamic = []
 
@@ -51,7 +52,7 @@ include = ["llama_assistant*"]
 exclude = ["tests*"]
 
 [tool.setuptools.package-data]
-"llama_assistant.resources" = ["*.png"]
+"llama_assistant.resources" = ["*.png", "*.onnx"]
 
 
 [tool.black]

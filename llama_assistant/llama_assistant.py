@@ -36,6 +36,7 @@ from PyQt6.QtGui import (
     QFont,
     QBitmap,
 )
+from llama_assistant.wake_word_detector import WakeWordDetector
 
 from llama_assistant.custom_plaintext_editor import CustomPlainTextEdit
 from llama_assistant.global_hotkey import GlobalHotkey
@@ -54,6 +55,7 @@ from llama_assistant.icons import (
 class LlamaAssistant(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.wake_word_detector = None
         self.load_settings()
         self.init_ui()
         self.init_tray()
@@ -65,6 +67,18 @@ class LlamaAssistant(QMainWindow):
         self.image_label = None
         self.current_text_model = self.settings.get("text_model")
         self.current_multimodal_model = self.settings.get("multimodal_model")
+
+    def init_wake_word_detector(self):
+        if self.wake_word_detector is not None:
+            self.deinit_wake_word_detector()
+        self.wake_word_detector = WakeWordDetector()
+        self.wake_word_detector.wakeword_detected.connect(self.on_wake_word_detected)
+        self.wake_word_detector.start()
+
+    def deinit_wake_word_detector(self):
+        if self.wake_word_detector.running:
+            self.wake_word_detector.stop()
+        self.wake_word_detector = None
 
     def load_settings(self):
         home_dir = Path.home()
@@ -90,8 +104,14 @@ class LlamaAssistant(QMainWindow):
                 "transparency": 90,
                 "text_model": "hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF",
                 "multimodal_model": "vikhyatk/moondream2",
+                "hey_llama_chat": False,
+                "hey_llama_mic": False,
             }
             self.save_settings()
+        if self.settings.get("hey_llama_chat", False) and self.wake_word_detector is None:
+            self.init_wake_word_detector()
+        if not self.settings.get("hey_llama_chat", False) and self.wake_word_detector is not None:
+            self.deinit_wake_word_detector()
         self.current_text_model = self.settings.get("text_model")
         self.current_multimodal_model = self.settings.get("multimodal_model")
 
@@ -577,6 +597,13 @@ class LlamaAssistant(QMainWindow):
         self.move(self.x() + delta.x(), self.y() + delta.y())
         self.oldPos = event.globalPosition().toPoint()
 
+    def on_wake_word_detected(self, model_name):
+        self.show()
+        self.activateWindow()
+        self.raise_()
+        if self.settings.get("hey_llama_mic", False):
+            self.start_voice_input()
+
     def toggle_voice_input(self):
         if not self.is_listening:
             self.start_voice_input()
@@ -627,9 +654,15 @@ class LlamaAssistant(QMainWindow):
             self.input_field.setPlainText(f"{current_text}\n{text}")
         else:
             self.input_field.setPlainText(text)
+        self.stop_voice_input()
 
     def on_speech_error(self, error_message):
-        print(error_message)
+        print(f"Speech recognition error: {error_message}")
+        self.stop_voice_input()
+
+    def closeEvent(self, event):
+        self.wake_word_detector.stop()
+        super().closeEvent(event)
 
 
 if __name__ == "__main__":

@@ -11,6 +11,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QWidget,
+    QCheckBox,
+    QGroupBox,
 )
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import Qt
@@ -28,40 +30,17 @@ class SettingsDialog(QDialog):
         self.setWindowTitle("Settings")
         self.main_layout = QVBoxLayout(self)
 
-        # Create a form layout for the settings
-        form_widget = QWidget()
-        self.layout = QFormLayout(form_widget)
-        self.layout.setFormAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
+        # General Settings Group
+        self.create_general_settings_group()
 
-        self.shortcut_recorder = ShortcutRecorder()
-        self.layout.addRow("Shortcut:", self.shortcut_recorder)
+        # Appearance Settings Group
+        self.create_appearance_settings_group()
 
-        self.reset_shortcut_button = QPushButton("Reset Shortcut")
-        self.reset_shortcut_button.clicked.connect(self.reset_shortcut)
-        self.layout.addRow(self.reset_shortcut_button)
+        # Model Settings Group
+        self.create_model_settings_group()
 
-        self.color_button = QPushButton("Choose Color")
-        self.color_button.clicked.connect(self.choose_color)
-        self.layout.addRow("Background Color:", self.color_button)
-
-        self.transparency_slider = QSlider(Qt.Orientation.Horizontal)
-        self.transparency_slider.setRange(10, 100)
-        self.transparency_slider.setValue(90)
-        self.layout.addRow("Transparency:", self.transparency_slider)
-
-        # Text-only model selection
-        self.text_model_combo = QComboBox()
-        self.text_model_combo.addItems(self.get_model_names_by_type("text"))
-        self.layout.addRow("Text-only Model:", self.text_model_combo)
-
-        # Multimodal model selection
-        self.multimodal_model_combo = QComboBox()
-        self.multimodal_model_combo.addItems(self.get_model_names_by_type("image"))
-        self.layout.addRow("Multimodal Model:", self.multimodal_model_combo)
-
-        # Add the form widget to the main layout
-        self.main_layout.addWidget(form_widget)
+        # Voice Activation Settings Group
+        self.create_voice_activation_settings_group()
 
         # Create a horizontal layout for the save button
         button_layout = QHBoxLayout()
@@ -74,6 +53,65 @@ class SettingsDialog(QDialog):
         self.main_layout.addLayout(button_layout)
 
         self.load_settings()
+
+    def create_general_settings_group(self):
+        group_box = QGroupBox("General Settings")
+        layout = QFormLayout()
+
+        self.shortcut_recorder = ShortcutRecorder()
+        layout.addRow("Shortcut:", self.shortcut_recorder)
+
+        self.reset_shortcut_button = QPushButton("Reset Shortcut")
+        self.reset_shortcut_button.clicked.connect(self.reset_shortcut)
+        layout.addRow(self.reset_shortcut_button)
+
+        group_box.setLayout(layout)
+        self.main_layout.addWidget(group_box)
+
+    def create_appearance_settings_group(self):
+        group_box = QGroupBox("Appearance Settings")
+        layout = QFormLayout()
+
+        self.color_button = QPushButton("Choose Color")
+        self.color_button.clicked.connect(self.choose_color)
+        layout.addRow("Background Color:", self.color_button)
+
+        self.transparency_slider = QSlider(Qt.Orientation.Horizontal)
+        self.transparency_slider.setRange(10, 100)
+        self.transparency_slider.setValue(90)
+        layout.addRow("Transparency:", self.transparency_slider)
+
+        group_box.setLayout(layout)
+        self.main_layout.addWidget(group_box)
+
+    def create_model_settings_group(self):
+        group_box = QGroupBox("Model Settings")
+        layout = QFormLayout()
+
+        self.text_model_combo = QComboBox()
+        self.text_model_combo.addItems(self.get_model_names_by_type("text"))
+        layout.addRow("Text-only Model:", self.text_model_combo)
+
+        self.multimodal_model_combo = QComboBox()
+        self.multimodal_model_combo.addItems(self.get_model_names_by_type("image"))
+        layout.addRow("Multimodal Model:", self.multimodal_model_combo)
+
+        group_box.setLayout(layout)
+        self.main_layout.addWidget(group_box)
+
+    def create_voice_activation_settings_group(self):
+        group_box = QGroupBox("Voice Activation Settings")
+        layout = QVBoxLayout()
+
+        self.hey_llama_chat_checkbox = QCheckBox('Say "Hey Llama" to open chat form')
+        self.hey_llama_chat_checkbox.stateChanged.connect(self.update_hey_llama_mic_state)
+        layout.addWidget(self.hey_llama_chat_checkbox)
+
+        self.hey_llama_mic_checkbox = QCheckBox('Say "Hey Llama" to activate microphone')
+        layout.addWidget(self.hey_llama_mic_checkbox)
+
+        group_box.setLayout(layout)
+        self.main_layout.addWidget(group_box)
 
     def accept(self):
         self.save_settings()
@@ -90,6 +128,9 @@ class SettingsDialog(QDialog):
 
     def reset_shortcut(self):
         self.shortcut_recorder.setText("<cmd>+<shift>+<space>")
+
+    def update_hey_llama_mic_state(self, state):
+        self.hey_llama_mic_checkbox.setEnabled(state == Qt.CheckState.Checked.value)
 
     def load_settings(self):
         home_dir = Path.home()
@@ -109,6 +150,10 @@ class SettingsDialog(QDialog):
             multimodal_model = settings.get("multimodal_model")
             if multimodal_model in self.get_model_names_by_type("image"):
                 self.multimodal_model_combo.setCurrentText(multimodal_model)
+
+            self.hey_llama_chat_checkbox.setChecked(settings.get("hey_llama_chat", False))
+            self.hey_llama_mic_checkbox.setChecked(settings.get("hey_llama_mic", False))
+            self.update_hey_llama_mic_state(settings.get("hey_llama_chat", False))
         else:
             self.color = QColor("#1E1E1E")
             self.shortcut_recorder.setText("<cmd>+<shift>+<space>")
@@ -120,6 +165,8 @@ class SettingsDialog(QDialog):
             "transparency": self.transparency_slider.value(),
             "text_model": self.text_model_combo.currentText(),
             "multimodal_model": self.multimodal_model_combo.currentText(),
+            "hey_llama_chat": self.hey_llama_chat_checkbox.isChecked(),
+            "hey_llama_mic": self.hey_llama_mic_checkbox.isChecked(),
         }
 
     def save_settings(self):
