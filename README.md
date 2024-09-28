@@ -20,6 +20,9 @@ This assistant can run offline on your local machine, and it respects your priva
 
 ![Screenshot](https://raw.githubusercontent.com/vietanhdev/llama-assistant/refs/heads/main/screenshot.png)
 
+<img width="682" alt="settings" src="https://github.com/user-attachments/assets/58093a7b-95f3-435a-8c7a-013cba946332">
+
+
 ## Supported Models
 
 - 📝 Text-only models:
@@ -152,6 +155,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Radio icons created by Freepik - Flaticon](https://www.flaticon.com/free-icons/radio)
 - [Llama 3.2](https://github.com/facebookresearch/llama) by Meta AI Research
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=vietanhdev/llama-assistant&type=Date)](https://star-history.com/#vietanhdev/llama-assistant&Date)
 
 ## Contact
 
