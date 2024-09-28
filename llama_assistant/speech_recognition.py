@@ -17,9 +17,7 @@ class SpeechRecognitionThread(QThread):
             self.recognizer.adjust_for_ambient_noise(source)
             while not self.stop_listening:
                 try:
-                    audio = self.recognizer.listen(
-                        source, timeout=1, phrase_time_limit=10
-                    )
+                    audio = self.recognizer.listen(source, timeout=1, phrase_time_limit=10)
                     text = self.recognizer.recognize_google(audio)
                     self.finished.emit(text)
                 except sr.WaitTimeoutError:

@@ -56,9 +56,7 @@ class LoadingAnimation(QWidget):
             painter.setBrush(color)
             painter.setPen(Qt.PenStyle.NoPen)
 
-            painter.drawEllipse(
-                QPointF(x, y), self.dot_radius, self.dot_radius
-            )
+            painter.drawEllipse(QPointF(x, y), self.dot_radius, self.dot_radius)
 
     @property
     def rotation(self):

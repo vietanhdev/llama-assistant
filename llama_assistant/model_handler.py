@@ -39,16 +39,12 @@ class ModelHandler:
         self.supported_models.append(model)
 
     def remove_supported_model(self, model_id: str):
-        self.supported_models = [
-            m for m in self.supported_models if m.model_id != model_id
-        ]
+        self.supported_models = [m for m in self.supported_models if m.model_id != model_id]
         if model_id in self.loaded_models:
             self.unload_model(model_id)
 
     def load_model(self, model_id: str) -> Optional[Dict]:
-        model = next(
-            (m for m in self.supported_models if m.model_id == model_id), None
-        )
+        model = next((m for m in self.supported_models if m.model_id == model_id), None)
         if not model:
             print(f"Model with ID {model_id} not found.")
             return None
@@ -123,9 +119,7 @@ class ModelHandler:
                 ]
             )
         else:
-            response = model.create_chat_completion(
-                messages=[{"role": "user", "content": message}]
-            )
+            response = model.create_chat_completion(messages=[{"role": "user", "content": message}])
 
         return response["choices"][0]["message"]["content"]
 
@@ -181,9 +175,7 @@ if __name__ == "__main__":
 
     # Use image model
     image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
-    result = handler.chat_completion(
-        "moondream", "What's in this image?", image=image_url
-    )
+    result = handler.chat_completion("moondream", "What's in this image?", image=image_url)
     print(result)
 
     # Use local model

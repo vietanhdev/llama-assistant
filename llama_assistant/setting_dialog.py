@@ -40,9 +40,7 @@ class SettingsDialog(QDialog):
         self.ai_model_combo.addItems(["Llama 1B + Moondream2"])
         self.layout.addRow("AI Model:", self.ai_model_combo)
 
-        self.label = QLabel(
-            "Note: Changing AI model will be supported in the future."
-        )
+        self.label = QLabel("Note: Changing AI model will be supported in the future.")
         self.layout.addRow(self.label)
 
         self.save_button = QPushButton("Save")
@@ -66,13 +64,9 @@ class SettingsDialog(QDialog):
         if settings_file.exists():
             with open(settings_file, "r") as f:
                 settings = json.load(f)
-            self.shortcut_recorder.setText(
-                settings.get("shortcut", "<cmd>+<shift>+<space>")
-            )
+            self.shortcut_recorder.setText(settings.get("shortcut", "<cmd>+<shift>+<space>"))
             self.color = QColor(settings.get("color", "#1E1E1E"))
-            self.transparency_slider.setValue(
-                int(settings.get("transparency", 90))
-            )
+            self.transparency_slider.setValue(int(settings.get("transparency", 90)))
             # self.ai_model_combo.setCurrentText(
             #     settings.get("ai_model", "Llama 1B")
             # ) # TODO: Implement this feature

@@ -7,9 +7,7 @@ class GlobalHotkey(QObject):
 
     def __init__(self, hotkey):
         super().__init__()
-        self.hotkey = keyboard.HotKey(
-            keyboard.HotKey.parse(hotkey), self.on_activate
-        )
+        self.hotkey = keyboard.HotKey(keyboard.HotKey.parse(hotkey), self.on_activate)
         self.listener = keyboard.Listener(
             on_press=self.for_canonical(self.hotkey.press),
             on_release=self.for_canonical(self.hotkey.release),
