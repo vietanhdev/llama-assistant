@@ -331,6 +331,7 @@ class LlamaAssistant(QMainWindow):
         sender = self.sender()
         task = sender.text().lower()
         message = self.input_field.toPlainText()
+        self.input_field.clear()
         self.process_text(message, task)
 
     def update_styles(self):

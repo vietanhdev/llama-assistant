@@ -62,6 +62,7 @@ class ModelHandler:
                 loaded_model = Llama.from_pretrained(
                     repo_id=model.repo_id,
                     filename=model.filename,
+                    n_ctx=2048,
                 )
             elif model.model_type == "image":
                 if "moondream2" in model.repo_id:
