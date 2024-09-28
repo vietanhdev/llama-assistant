@@ -14,22 +14,32 @@
 ![Forks](https://img.shields.io/github/forks/vietanhdev/llama-assistant.svg)
 ![Issues](https://img.shields.io/github/issues/vietanhdev/llama-assistant.svg)
 
-A simple AI-powered assistant to help you with your daily tasks, powered by Llama 3.2. It can recognize your voice, process natural language, and perform various actions based on your commands: summarizing text, rephasing sentences, answering questions, writing emails, and more.
+AI-powered assistant to help you with your daily tasks, powered by Llama 3.2. It can recognize your voice, process natural language, and perform various actions based on your commands: summarizing text, rephasing sentences, answering questions, writing emails, and more.
 
 This assistant can run offline on your local machine, and it respects your privacy by not sending any data to external servers.
 
 ![Screenshot](https://raw.githubusercontent.com/vietanhdev/llama-assistant/refs/heads/main/screenshot.png)
 
+## Supported Models
+
+- 📝 Text-only models:
+  - [Llama 3.2](https://github.com/facebookresearch/llama) - 1B, 3B (4/8-bit quantized)
+  - [Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF) (4-bit quantized)
+
+- 🖼️ Multimodal models:
+  - [Moondream2](https://huggingface.co/vikhyatk/moondream2)
+  - [MiniCPM-v2.6](https://huggingface.co/openbmb/MiniCPM-V-2_6-gguf)
+
 ## TODO
 
-- [x] Support multimodal model: [moondream2](https://huggingface.co/vikhyatk/moondream2).
-- [ ] Add offline STT support: WhisperCPP.
-- [ ] Add wake word detection: "Hey Llama!".
-- [ ] Support 5 other text models.
-- [ ] Support 5 other multimodal models.
-- [ ] Knowledge database: Langchain or LlamaIndex?.
-- [ ] Plugin system for extensibility.
-- [ ] Package for Windows, Linux, and macOS.
+- [x] 🖼️ Support multimodal model: [moondream2](https://huggingface.co/vikhyatk/moondream2).
+- [ ] 🎙️ Add offline STT support: WhisperCPP.
+- [ ] 🗣️ Add wake word detection: "Hey Llama!".
+- [ ] 📚 Support 5 other text models.
+- [ ] 🖼️ Support 5 other multimodal models.
+- [ ] 🧠 Knowledge database: Langchain or LlamaIndex?.
+- [ ] 🔌 Plugin system for extensibility.
+- [ ] 📦 Package for Windows, Linux, and macOS.
 
 ## Features
 
@@ -59,6 +69,8 @@ pip install pyaudio
 
 **Or install from source:**
 
+<details>
+
 1. Clone the repository:
 
    ```bash
@@ -73,12 +85,16 @@ pip install pyaudio
    pip install pyaudio
    ```
 
+</details>
+
 **Speed Hack for Apple Silicon (M1, M2, M3) users:** 🔥🔥🔥
+
+<details>
 
 - Install Xcode:
 
 ```bash
-# check the path of your xcode install 
+# check the path of your xcode install
 xcode-select -p
 
 # xcode installed returns
@@ -93,11 +109,12 @@ xcode-select --install
 ```bash
 pip uninstall llama-cpp-python -y
 CMAKE_ARGS="-DGGML_METAL=on" pip install -U llama-cpp-python --no-cache-dir
-pip install 'llama-cpp-python[server]'
 
-# you should now have llama-cpp-python v0.1.62 or higher installed
-llama-cpp-python         0.1.68
+# You should now have llama-cpp-python v0.1.62 or higher installed
+# llama-cpp-python         0.1.68
 ```
+
+</details>
 
 ## Usage
 

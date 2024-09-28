@@ -63,6 +63,8 @@ class LlamaAssistant(QMainWindow):
         self.speech_thread = None
         self.is_listening = False
         self.image_label = None
+        self.current_text_model = self.settings.get("text_model")
+        self.current_multimodal_model = self.settings.get("multimodal_model")
 
     def load_settings(self):
         home_dir = Path.home()
@@ -75,14 +77,23 @@ class LlamaAssistant(QMainWindow):
         if settings_file.exists():
             with open(settings_file, "r") as f:
                 self.settings = json.load(f)
+            self.settings["text_model"] = self.settings.get(
+                "text_model", "hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF"
+            )
+            self.settings["multimodal_model"] = self.settings.get(
+                "multimodal_model", "vikhyatk/moondream2"
+            )
         else:
             self.settings = {
                 "shortcut": "<cmd>+<shift>+<space>",
                 "color": "#1E1E1E",
                 "transparency": 90,
-                "ai_model": "Llama 1B",
+                "text_model": "hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF",
+                "multimodal_model": "vikhyatk/moondream2",
             }
             self.save_settings()
+        self.current_text_model = self.settings.get("text_model")
+        self.current_multimodal_model = self.settings.get("multimodal_model")
 
     def setup_global_shortcut(self):
         if hasattr(self, "global_hotkey"):
@@ -97,6 +108,7 @@ class LlamaAssistant(QMainWindow):
             old_shortcut = self.settings["shortcut"]
             self.settings.update(new_settings)
             self.save_settings()
+            self.load_settings()
             self.update_styles()
 
             if old_shortcut != self.settings["shortcut"]:
@@ -432,7 +444,7 @@ class LlamaAssistant(QMainWindow):
         elif task == "write email":
             prompt = f"Write an email about: {message}"
 
-        response = model_handler.chat_completion("llama_text", prompt)
+        response = model_handler.chat_completion(self.current_text_model, prompt)
         self.last_response = response
 
         self.chat_box.append(f"<b>You:</b> {message}")
@@ -442,7 +454,7 @@ class LlamaAssistant(QMainWindow):
 
     def process_image_with_prompt(self, image_path, prompt):
         response = model_handler.chat_completion(
-            "moondream", prompt, image=image_to_base64_data_uri(image_path)
+            self.current_multimodal_model, prompt, image=image_to_base64_data_uri(image_path)
         )
         self.chat_box.append(f"<b>You:</b> [Uploaded an image: {image_path}]")
         self.chat_box.append(f"<b>You:</b> {prompt}")
@@ -470,6 +482,7 @@ class LlamaAssistant(QMainWindow):
         self.chat_box.clear()
         self.last_response = ""
         self.scroll_area.hide()
+        self.setFixedHeight(200)  # Reset to default height
 
     def dragEnterEvent(self, event: QDragEnterEvent):
         if event.mimeData().hasUrls():

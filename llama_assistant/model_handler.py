@@ -2,7 +2,9 @@ from typing import List, Dict, Optional
 import time
 from threading import Timer
 from llama_cpp import Llama
-from llama_cpp.llama_chat_format import MoondreamChatHandler
+from llama_cpp.llama_chat_format import MoondreamChatHandler, MiniCPMv26ChatHandler
+
+from llama_assistant.config import models
 
 
 class Model:
@@ -29,8 +31,9 @@ class Model:
 class ModelHandler:
     def __init__(self):
         self.supported_models: List[Model] = []
-        self.loaded_models: Dict[str, Dict] = {}
-        self.model_timers: Dict[str, Timer] = {}
+        self.loaded_model: Optional[Dict] = None
+        self.current_model_id: Optional[str] = None
+        self.unload_timer: Optional[Timer] = None
 
     def list_supported_models(self) -> List[Model]:
         return self.supported_models
@@ -40,24 +43,28 @@ class ModelHandler:
 
     def remove_supported_model(self, model_id: str):
         self.supported_models = [m for m in self.supported_models if m.model_id != model_id]
-        if model_id in self.loaded_models:
-            self.unload_model(model_id)
+        if self.current_model_id == model_id:
+            self.unload_model()
 
     def load_model(self, model_id: str) -> Optional[Dict]:
+        if self.current_model_id == model_id and self.loaded_model:
+            return self.loaded_model
+
+        self.unload_model()  # Unload the current model if any
+
         model = next((m for m in self.supported_models if m.model_id == model_id), None)
         if not model:
             print(f"Model with ID {model_id} not found.")
             return None
 
-        if model_id not in self.loaded_models:
-            print(f"Loading model: {model.model_name}")
-            if model.is_online():
-                if model.model_type == "text":
-                    loaded_model = Llama.from_pretrained(
-                        repo_id=model.repo_id,
-                        filename=model.filename,
-                    )
-                elif model.model_type == "image":
+        if model.is_online():
+            if model.model_type == "text":
+                loaded_model = Llama.from_pretrained(
+                    repo_id=model.repo_id,
+                    filename=model.filename,
+                )
+            elif model.model_type == "image":
+                if "moondream2" in model.repo_id:
                     chat_handler = MoondreamChatHandler.from_pretrained(
                         repo_id="vikhyatk/moondream2",
                         filename="*mmproj*",
@@ -68,28 +75,41 @@ class ModelHandler:
                         chat_handler=chat_handler,
                         n_ctx=2048,
                     )
-                else:
-                    print(f"Unsupported model type: {model.model_type}")
-                    return None
+                elif "MiniCPM" in model.repo_id:
+                    chat_handler = MiniCPMv26ChatHandler.from_pretrained(
+                        repo_id=model.repo_id,
+                        filename="*mmproj*",
+                    )
+                    loaded_model = Llama.from_pretrained(
+                        repo_id=model.repo_id,
+                        filename=model.filename,
+                        chat_handler=chat_handler,
+                        n_ctx=2048,
+                    )
             else:
-                # Load model from local path
-                loaded_model = Llama(model_path=model.model_path)
+                print(f"Unsupported model type: {model.model_type}")
+                return None
+        else:
+            # Load model from local path
+            loaded_model = Llama(model_path=model.model_path)
 
-            self.loaded_models[model_id] = {
-                "model": loaded_model,
-                "last_used": time.time(),
-            }
-            self._schedule_unload(model_id)
+        self.loaded_model = {
+            "model": loaded_model,
+            "last_used": time.time(),
+        }
+        self.current_model_id = model_id
+        self._schedule_unload()
 
-        return self.loaded_models[model_id]
+        return self.loaded_model
 
-    def unload_model(self, model_id: str):
-        if model_id in self.loaded_models:
-            print(f"Unloading model: {model_id}")
-            del self.loaded_models[model_id]
-            if model_id in self.model_timers:
-                self.model_timers[model_id].cancel()
-                del self.model_timers[model_id]
+    def unload_model(self):
+        if self.loaded_model:
+            print(f"Unloading model: {self.current_model_id}")
+            self.loaded_model = None
+            self.current_model_id = None
+        if self.unload_timer:
+            self.unload_timer.cancel()
+            self.unload_timer = None
 
     def chat_completion(
         self,
@@ -104,7 +124,7 @@ class ModelHandler:
 
         model = model_data["model"]
         model_data["last_used"] = time.time()
-        self._schedule_unload(model_id)
+        self._schedule_unload()
 
         if image:
             response = model.create_chat_completion(
@@ -123,45 +143,20 @@ class ModelHandler:
 
         return response["choices"][0]["message"]["content"]
 
-    def _schedule_unload(self, model_id: str):
-        if model_id in self.model_timers:
-            self.model_timers[model_id].cancel()
+    def _schedule_unload(self):
+        if self.unload_timer:
+            self.unload_timer.cancel()
 
-        timer = Timer(3600, self.unload_model, args=[model_id])
-        timer.start()
-        self.model_timers[model_id] = timer
+        self.unload_timer = Timer(3600, self.unload_model)
+        self.unload_timer.start()
 
 
 # Example usage
 handler = ModelHandler()
 
-# Add supported models
-handler.add_supported_model(
-    Model(
-        model_type="text",
-        model_id="llama_text",
-        model_name="Llama 3.2 1B Instruct",
-        repo_id="hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF",
-        filename="*q4_k_m.gguf",
-    )
-)
-handler.add_supported_model(
-    Model(
-        model_type="image",
-        model_id="moondream",
-        model_name="Moondream2",
-        repo_id="vikhyatk/moondream2",
-        filename="*text-model*",
-    )
-)
-# handler.add_supported_model(
-#     Model(
-#         model_type="text",
-#         model_id="local_model",
-#         model_name="Local Text Model",
-#         model_path="/path/to/local/model.gguf",
-#     )
-# )
+for model_data in models:
+    model = Model(**model_data)
+    handler.add_supported_model(model)
 
 # List supported models
 print("Supported models:")

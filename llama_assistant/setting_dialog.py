@@ -8,17 +8,31 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QColorDialog,
     QLabel,
+    QVBoxLayout,
+    QHBoxLayout,
+    QWidget,
 )
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
+
 from llama_assistant.shortcut_recorder import ShortcutRecorder
+from llama_assistant.config import models
 
 
 class SettingsDialog(QDialog):
+    settingsSaved = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Settings")
-        self.layout = QFormLayout(self)
+        self.main_layout = QVBoxLayout(self)
+
+        # Create a form layout for the settings
+        form_widget = QWidget()
+        self.layout = QFormLayout(form_widget)
+        self.layout.setFormAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
 
         self.shortcut_recorder = ShortcutRecorder()
         self.layout.addRow("Shortcut:", self.shortcut_recorder)
@@ -36,18 +50,38 @@ class SettingsDialog(QDialog):
         self.transparency_slider.setValue(90)
         self.layout.addRow("Transparency:", self.transparency_slider)
 
-        self.ai_model_combo = QComboBox()
-        self.ai_model_combo.addItems(["Llama 1B + Moondream2"])
-        self.layout.addRow("AI Model:", self.ai_model_combo)
+        # Text-only model selection
+        self.text_model_combo = QComboBox()
+        self.text_model_combo.addItems(self.get_model_names_by_type("text"))
+        self.layout.addRow("Text-only Model:", self.text_model_combo)
 
-        self.label = QLabel("Note: Changing AI model will be supported in the future.")
-        self.layout.addRow(self.label)
+        # Multimodal model selection
+        self.multimodal_model_combo = QComboBox()
+        self.multimodal_model_combo.addItems(self.get_model_names_by_type("image"))
+        self.layout.addRow("Multimodal Model:", self.multimodal_model_combo)
 
+        # Add the form widget to the main layout
+        self.main_layout.addWidget(form_widget)
+
+        # Create a horizontal layout for the save button
+        button_layout = QHBoxLayout()
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self.accept)
-        self.layout.addRow(self.save_button)
+        button_layout.addStretch()
+        button_layout.addWidget(self.save_button)
+
+        # Add the button layout to the main layout
+        self.main_layout.addLayout(button_layout)
 
         self.load_settings()
+
+    def accept(self):
+        self.save_settings()
+        self.settingsSaved.emit()
+        super().accept()
+
+    def get_model_names_by_type(self, model_type):
+        return [model["model_id"] for model in models if model["model_type"] == model_type]
 
     def choose_color(self):
         color = QColorDialog.getColor()
@@ -67,10 +101,14 @@ class SettingsDialog(QDialog):
             self.shortcut_recorder.setText(settings.get("shortcut", "<cmd>+<shift>+<space>"))
             self.color = QColor(settings.get("color", "#1E1E1E"))
             self.transparency_slider.setValue(int(settings.get("transparency", 90)))
-            # self.ai_model_combo.setCurrentText(
-            #     settings.get("ai_model", "Llama 1B")
-            # ) # TODO: Implement this feature
-            self.ai_model_combo.setCurrentText("Llama 1B + Moondream2")
+
+            text_model = settings.get("text_model")
+            if text_model in self.get_model_names_by_type("text"):
+                self.text_model_combo.setCurrentText(text_model)
+
+            multimodal_model = settings.get("multimodal_model")
+            if multimodal_model in self.get_model_names_by_type("image"):
+                self.multimodal_model_combo.setCurrentText(multimodal_model)
         else:
             self.color = QColor("#1E1E1E")
             self.shortcut_recorder.setText("<cmd>+<shift>+<space>")
@@ -80,7 +118,8 @@ class SettingsDialog(QDialog):
             "shortcut": self.shortcut_recorder.text(),
             "color": self.color.name(),
             "transparency": self.transparency_slider.value(),
-            "ai_model": self.ai_model_combo.currentText(),
+            "text_model": self.text_model_combo.currentText(),
+            "multimodal_model": self.multimodal_model_combo.currentText(),
         }
 
     def save_settings(self):
