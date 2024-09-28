@@ -1,7 +1,7 @@
 import json
 import markdown
-from llama_cpp import Llama
 from pathlib import Path
+from importlib import resources
 
 from PyQt6.QtWidgets import (
     QApplication,
@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
     QSystemTrayIcon,
     QMenu,
     QLabel,
+    QScrollArea,
 )
 from PyQt6.QtCore import (
     Qt,
@@ -41,7 +42,8 @@ from llama_assistant.global_hotkey import GlobalHotkey
 from llama_assistant.loading_animation import LoadingAnimation
 from llama_assistant.setting_dialog import SettingsDialog
 from llama_assistant.speech_recognition import SpeechRecognitionThread
-from importlib import resources
+from llama_assistant.utils import image_to_base64_data_uri
+from llama_assistant.model_handler import handler as model_handler
 
 
 class LlamaAssistant(QMainWindow):
@@ -51,18 +53,11 @@ class LlamaAssistant(QMainWindow):
         self.init_ui()
         self.init_tray()
         self.setup_global_shortcut()
-        self.load_model()
         self.last_response = ""
         self.dropped_image = None
         self.speech_thread = None
         self.is_listening = False
         self.image_label = None
-
-    def load_model(self):
-        self.model = Llama.from_pretrained(
-            repo_id="hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF",
-            filename="*q4_k_m.gguf",
-        )
 
     def load_settings(self):
         home_dir = Path.home()
@@ -112,7 +107,8 @@ class LlamaAssistant(QMainWindow):
         self.setWindowTitle("AI Assistant")
         self.setFixedSize(600, 200)
         self.setWindowFlags(
-            Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint
+            Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.WindowStaysOnTopHint
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
@@ -132,6 +128,7 @@ class LlamaAssistant(QMainWindow):
         self.input_field = CustomPlainTextEdit(self.on_submit, self)
         self.input_field.setPlaceholderText("Ask me anything...")
         self.input_field.setAcceptDrops(True)
+        self.input_field.setFixedHeight(100)
         self.input_field.dragEnterEvent = self.dragEnterEvent
         self.input_field.dropEvent = self.dropEvent
         self.input_field.setStyleSheet(
@@ -150,7 +147,9 @@ class LlamaAssistant(QMainWindow):
         top_layout.addWidget(self.input_field)
 
         # Load the mic icon from resources
-        with resources.path("llama_assistant.resources", "mic_icon.png") as path:
+        with resources.path(
+            "llama_assistant.resources", "mic_icon.png"
+        ) as path:
             mic_icon = QIcon(str(path))
 
         self.mic_button = QPushButton(self)
@@ -197,38 +196,73 @@ class LlamaAssistant(QMainWindow):
 
         # Add new buttons
         button_layout = QHBoxLayout()
+        button_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.summarize_button = QPushButton("Summarize", self)
         self.rephrase_button = QPushButton("Rephrase", self)
         self.fix_grammar_button = QPushButton("Fix Grammar", self)
         self.brainstorm_button = QPushButton("Brainstorm", self)
         self.write_email_button = QPushButton("Write Email", self)
 
-        for button in [self.summarize_button, self.rephrase_button, self.fix_grammar_button, self.brainstorm_button, self.write_email_button]:
+        # Add new buttons to layout
+        result_layout = QHBoxLayout()
+        result_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.copy_button = QPushButton("Copy Result", self)
+        self.copy_button.clicked.connect(self.copy_result)
+        self.copy_button.hide()
+        self.clear_button = QPushButton("Clear", self)
+        self.clear_button.clicked.connect(self.clear_chat)
+        self.clear_button.hide()
+        result_layout.addWidget(self.copy_button)
+        result_layout.addWidget(self.clear_button)
+
+        for button in [
+            self.summarize_button,
+            self.rephrase_button,
+            self.fix_grammar_button,
+            self.brainstorm_button,
+            self.write_email_button,
+        ]:
             button.clicked.connect(self.on_task_button_clicked)
             button_layout.addWidget(button)
 
         main_layout.addLayout(button_layout)
+        main_layout.addLayout(result_layout)
 
-        self.chat_box = QTextBrowser(self)
+        # Create a scroll area for the chat box
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self.scroll_area.setStyleSheet(
+            """
+            QScrollArea {
+                border: none;
+                background-color: transparent;
+            }
+            QScrollBar:vertical {
+                border: none;
+                background: rgba(255, 255, 255, 0.1);
+                width: 10px;
+                margin: 0px 0px 0px 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: rgba(255, 255, 255, 0.3);
+                min-height: 20px;
+                border-radius: 5px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                border: none;
+                background: none;
+            }
+            """
+        )
+
+        self.chat_box = QTextBrowser(self.scroll_area)
         self.chat_box.setOpenExternalLinks(True)
-        self.chat_box.setFixedHeight(300)
-        self.chat_box.hide()
-        main_layout.addWidget(self.chat_box)
-
-        result_button_layout = QHBoxLayout()
-        result_button_layout.setContentsMargins(0, 10, 0, 0)  # Add top margin
-
-        self.copy_button = QPushButton("Copy Result", self)
-        self.copy_button.clicked.connect(self.copy_result)
-        self.copy_button.hide()
-        result_button_layout.addWidget(self.copy_button)
-
-        self.clear_button = QPushButton("Clear", self)
-        self.clear_button.clicked.connect(self.clear_chat)
-        self.clear_button.hide()
-        result_button_layout.addWidget(self.clear_button)
-
-        main_layout.addLayout(result_button_layout)
+        self.scroll_area.setWidget(self.chat_box)
+        self.scroll_area.hide()
+        main_layout.addWidget(self.scroll_area)
 
         self.loading_animation = LoadingAnimation(self)
         self.loading_animation.setFixedSize(50, 50)
@@ -276,7 +310,26 @@ class LlamaAssistant(QMainWindow):
                 background-color: rgba{QColor(self.settings["color"]).lighter(120).getRgb()[:3] + (opacity,)};
             }}
         """
-        for button in [self.copy_button, self.clear_button, self.rephrase_button, self.fix_grammar_button, self.brainstorm_button, self.write_email_button, self.summarize_button]:
+        for button in [
+            self.rephrase_button,
+            self.fix_grammar_button,
+            self.brainstorm_button,
+            self.write_email_button,
+            self.summarize_button,
+        ]:
+            button.setStyleSheet(button_style)
+
+        button_style = f"""
+            QPushButton {{
+                {base_style}
+                padding: 2.5px 5px;
+                border-radius: 5px;
+            }}
+            QPushButton:hover {{
+                background-color: rgba(200, 200, 200, 0.8);
+            }}
+        """
+        for button in [self.copy_button, self.clear_button]:
             button.setStyleSheet(button_style)
 
     def center_on_screen(self):
@@ -329,7 +382,9 @@ class LlamaAssistant(QMainWindow):
     def on_submit(self):
         message = self.input_field.toPlainText()
         self.input_field.clear()
-        self.loading_animation.move(self.width() // 2 - 25, self.height() // 2 - 25)
+        self.loading_animation.move(
+            self.width() // 2 - 25, self.height() // 2 - 25
+        )
         self.loading_animation.start_animation()
 
         if self.dropped_image:
@@ -353,39 +408,36 @@ class LlamaAssistant(QMainWindow):
         elif task == "write email":
             prompt = f"Write an email about: {message}"
 
-        output = self.model.create_chat_completion(
-            messages = [
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
-        )
-        response = output["choices"][0]["message"]["content"]
-
+        response = model_handler.chat_completion("llama_text", prompt)
         self.last_response = response
 
         self.chat_box.append(f"<b>You:</b> {message}")
-        self.chat_box.append(f"<b>AI ({task}):</b> {markdown.markdown(response)}")
+        self.chat_box.append(
+            f"<b>AI ({task}):</b> {markdown.markdown(response)}"
+        )
         self.loading_animation.stop_animation()
         self.show_chat_box()
 
     def process_image_with_prompt(self, image_path, prompt):
+        response = model_handler.chat_completion(
+            "moondream", prompt, image=image_to_base64_data_uri(image_path)
+        )
         self.chat_box.append(f"<b>You:</b> [Uploaded an image: {image_path}]")
         self.chat_box.append(f"<b>You:</b> {prompt}")
         self.chat_box.append(
-            f"<b>AI:</b> I've received your image and prompt. However, image processing is not yet implemented. Currently, only text input is supported. Here's a response to your text prompt:"
+            f"<b>AI:</b> {markdown.markdown(response)}"
+            if response
+            else "No response"
         )
-
-        # Process the text prompt
-        self.process_text(prompt)
+        self.loading_animation.stop_animation()
+        self.show_chat_box()
 
     def show_chat_box(self):
-        if self.chat_box.isHidden():
-            self.chat_box.show()
+        if self.scroll_area.isHidden():
+            self.scroll_area.show()
             self.copy_button.show()
             self.clear_button.show()
-            self.setFixedHeight(450)
+            self.setFixedHeight(600)  # Increase this value if needed
         self.chat_box.verticalScrollBar().setValue(
             self.chat_box.verticalScrollBar().maximum()
         )
@@ -409,9 +461,13 @@ class LlamaAssistant(QMainWindow):
     def dropEvent(self, event: QDropEvent):
         files = [u.toLocalFile() for u in event.mimeData().urls()]
         for file_path in files:
-            if file_path.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".bmp")):
+            if file_path.lower().endswith(
+                (".png", ".jpg", ".jpeg", ".gif", ".bmp")
+            ):
                 self.dropped_image = file_path
-                self.input_field.setPlaceholderText("Enter a prompt for the image...")
+                self.input_field.setPlaceholderText(
+                    "Enter a prompt for the image..."
+                )
                 self.show_image_thumbnail(file_path)
                 break
 
@@ -550,3 +606,10 @@ class LlamaAssistant(QMainWindow):
 
     def on_speech_error(self, error_message):
         print(error_message)
+
+
+if __name__ == "__main__":
+    app = QApplication([])
+    assistant = LlamaAssistant()
+    assistant.show()
+    app.exec()

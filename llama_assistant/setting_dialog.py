@@ -1,12 +1,18 @@
 import json
 from pathlib import Path
 from PyQt6.QtWidgets import (
-    QDialog, QFormLayout, QPushButton, QSlider, QComboBox,
-    QColorDialog
+    QDialog,
+    QFormLayout,
+    QPushButton,
+    QSlider,
+    QComboBox,
+    QColorDialog,
+    QLabel,
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 from llama_assistant.shortcut_recorder import ShortcutRecorder
+
 
 class SettingsDialog(QDialog):
     def __init__(self, parent=None):
@@ -31,8 +37,13 @@ class SettingsDialog(QDialog):
         self.layout.addRow("Transparency:", self.transparency_slider)
 
         self.ai_model_combo = QComboBox()
-        self.ai_model_combo.addItems(["Llama 1B", "Llama 3B"])
+        self.ai_model_combo.addItems(["Llama 1B + Moondream2"])
         self.layout.addRow("AI Model:", self.ai_model_combo)
+
+        self.label = QLabel(
+            "Note: Changing AI model will be supported in the future."
+        )
+        self.layout.addRow(self.label)
 
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self.accept)
@@ -55,10 +66,17 @@ class SettingsDialog(QDialog):
         if settings_file.exists():
             with open(settings_file, "r") as f:
                 settings = json.load(f)
-            self.shortcut_recorder.setText(settings.get("shortcut", "<cmd>+<shift>+<space>"))
+            self.shortcut_recorder.setText(
+                settings.get("shortcut", "<cmd>+<shift>+<space>")
+            )
             self.color = QColor(settings.get("color", "#1E1E1E"))
-            self.transparency_slider.setValue(int(settings.get("transparency", 90)))
-            self.ai_model_combo.setCurrentText(settings.get("ai_model", "Llama 1B"))
+            self.transparency_slider.setValue(
+                int(settings.get("transparency", 90))
+            )
+            # self.ai_model_combo.setCurrentText(
+            #     settings.get("ai_model", "Llama 1B")
+            # ) # TODO: Implement this feature
+            self.ai_model_combo.setCurrentText("Llama 1B + Moondream2")
         else:
             self.color = QColor("#1E1E1E")
             self.shortcut_recorder.setText("<cmd>+<shift>+<space>")

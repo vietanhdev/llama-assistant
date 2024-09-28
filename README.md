@@ -22,13 +22,14 @@ This assistant can run offline on your local machine, and it respects your priva
 
 ## TODO
 
-- [ ] Support other text models: Llama 3.x.
-- [ ] Support multimodal models: LLaVA, Llama 3.2 + Vision.
+- [x] Support multimodal model: [moondream2](https://huggingface.co/vikhyatk/moondream2).
 - [ ] Add offline STT support: WhisperCPP.
 - [ ] Add wake word detection: "Hey Llama!".
-- [ ] Knowledge database.
-- [ ] Video interaction support.
+- [ ] Support 5 other text models.
+- [ ] Support 5 other multimodal models.
+- [ ] Knowledge database: Langchain or LlamaIndex?.
 - [ ] Plugin system for extensibility.
+- [ ] Package for Windows, Linux, and macOS.
 
 ## Features
 

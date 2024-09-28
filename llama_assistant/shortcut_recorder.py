@@ -3,6 +3,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeyEvent, QKeySequence
 from pynput import keyboard
 
+
 class ShortcutRecorder(QLineEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -56,9 +57,18 @@ class ShortcutRecorder(QLineEdit):
             "Esc": "<esc>",
             "Backspace": "<backspace>",
             # Function keys
-            "F1": "<f1>", "F2": "<f2>", "F3": "<f3>", "F4": "<f4>",
-            "F5": "<f5>", "F6": "<f6>", "F7": "<f7>", "F8": "<f8>",
-            "F9": "<f9>", "F10": "<f10>", "F11": "<f11>", "F12": "<f12>",
+            "F1": "<f1>",
+            "F2": "<f2>",
+            "F3": "<f3>",
+            "F4": "<f4>",
+            "F5": "<f5>",
+            "F6": "<f6>",
+            "F7": "<f7>",
+            "F8": "<f8>",
+            "F9": "<f9>",
+            "F10": "<f10>",
+            "F11": "<f11>",
+            "F12": "<f12>",
         }
         return key_map.get(qt_key, qt_key.lower())
 
