@@ -7,10 +7,8 @@ from PyQt6.QtWidgets import (
     QSlider,
     QComboBox,
     QColorDialog,
-    QLabel,
     QVBoxLayout,
     QHBoxLayout,
-    QWidget,
     QCheckBox,
     QGroupBox,
 )

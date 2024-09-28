@@ -39,7 +39,14 @@ This assistant can run offline on your local machine, and it respects your priva
 - [ ] 🖼️ Support 5 other multimodal models.
 - [ ] 🧠 Knowledge database: Langchain or LlamaIndex?.
 - [ ] 🔌 Plugin system for extensibility.
+- [ ] 📰 News and weather updates.
+- [ ] 📧 Email integration with Gmail and Outlook.
+- [ ] 📝 Note-taking and task management.
+- [ ] 🎵 Music player and podcast integration.
+- [ ] 🤖 Workflow with multiple agents.
+- [ ] 🌐 Multi-language support: English, Spanish, French, German, etc.
 - [ ] 📦 Package for Windows, Linux, and macOS.
+- [ ] 🔄 Automated tests and CI/CD pipeline.
 
 ## Features
 
