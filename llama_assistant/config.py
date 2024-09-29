@@ -1,5 +1,6 @@
 models = [
     {
+        "engine": "llamacpp",
         "model_name": "Llama-3.2-1B-Instruct-Q4_K_M-GGUF",
         "model_id": "hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF",
         "model_type": "text",
@@ -8,6 +9,7 @@ models = [
         "filename": "*q4_k_m.gguf",
     },
     {
+        "engine": "llamacpp",
         "model_name": "Llama-3.2-1B-Instruct-Q8_0-GGUF",
         "model_id": "hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF",
         "model_type": "text",
@@ -16,6 +18,7 @@ models = [
         "filename": "*q8_0.gguf",
     },
     {
+        "engine": "llamacpp",
         "model_name": "Llama-3.2-3B-Instruct-Q4_K_M-GGUF",
         "model_id": "hugging-quants/Llama-3.2-3B-Instruct-Q4_K_M-GGUF",
         "model_type": "text",
@@ -24,6 +27,7 @@ models = [
         "filename": "*q4_k_m.gguf",
     },
     {
+        "engine": "llamacpp",
         "model_name": "Llama-3.2-3B-Instruct-Q8_0-GGUF",
         "model_id": "hugging-quants/Llama-3.2-3B-Instruct-Q8_0-GGUF",
         "model_type": "text",
@@ -32,6 +36,7 @@ models = [
         "filename": "*q8_0.gguf",
     },
     {
+        "engine": "llamacpp",
         "model_name": "Qwen2.5-0.5B-Instruct-GGUF",
         "model_id": "Qwen/Qwen2.5-0.5B-Instruct-GGUF-q4_k_m",
         "model_type": "text",
@@ -40,6 +45,7 @@ models = [
         "filename": "*q4_k_m.gguf",
     },
     {
+        "engine": "llamacpp",
         "model_name": "Moondream2",
         "model_id": "vikhyatk/moondream2",
         "model_type": "image",
@@ -48,6 +54,7 @@ models = [
         "filename": "*text-model*",
     },
     {
+        "engine": "llamacpp",
         "model_name": "MiniCPM-V-2_6-gguf",
         "model_id": "openbmb/MiniCPM-V-2_6-gguf-Q4_K_M",
         "model_type": "image",
@@ -56,6 +63,7 @@ models = [
         "filename": "*Q4_K_M.gguf",
     },
     {
+        "engine": "llamacpp",
         "model_name": "MiniCPM-V-2_6-gguf",
         "model_id": "openbmb/MiniCPM-V-2_6-gguf-Q8_0",
         "model_type": "image",
@@ -63,4 +71,46 @@ models = [
         "repo_id": "openbmb/MiniCPM-V-2_6-gguf",
         "filename": "*Q8_0.gguf",
     },
+    {
+        "engine": "mlx",
+        "model_name": "Llama-3.2-1B-Instruct-4bit",
+        "model_id": "mlx-community/Llama-3.2-1B-Instruct-4bit",
+        "model_type": "text",
+        "model_path": None,
+        "repo_id": "mlx-community/Llama-3.2-1B-Instruct-4bit",
+        "filename": None,
+    },
+    {
+        "engine": "mlx",
+        "model_name": "Llama-3.2-1B-Instruct-8bit",
+        "model_id": "mlx-community/Llama-3.2-1B-Instruct-4bit",
+        "model_type": "text",
+        "model_path": None,
+        "repo_id": "mlx-community/Llama-3.2-1B-Instruct-4bit",
+        "filename": None,
+    },
+    {
+        "engine": "mlx",
+        "model_name": "Llama-3.2-3B-Instruct-4bit",
+        "model_id": "mlx-community/Llama-3.2-3B-Instruct-4bit",
+        "model_type": "text",
+        "model_path": None,
+        "repo_id": "mlx-community/Llama-3.2-3B-Instruct-4bit",
+        "filename": None,
+    },
+    {
+        "engine": "mlx",
+        "model_name": "Llama-3.2-3B-Instruct-8bit",
+        "model_id": "mlx-community/Llama-3.2-3B-Instruct-4bit",
+        "model_type": "text",
+        "model_path": None,
+        "repo_id": "mlx-community/Llama-3.2-3B-Instruct-4bit",
+        "filename": None,
+    },
 ]
+
+
+try:
+    import mlx_lm
+except ImportError:
+    models = [model for model in models if model["engine"] != "mlx"]

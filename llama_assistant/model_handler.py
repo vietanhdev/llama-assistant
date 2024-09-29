@@ -1,15 +1,25 @@
 from typing import List, Dict, Optional
 import time
+import faulthandler
+
+faulthandler.enable()
+import traceback
 from threading import Timer
 from llama_cpp import Llama
 from llama_cpp.llama_chat_format import MoondreamChatHandler, MiniCPMv26ChatHandler
 
 from llama_assistant.config import models
 
+try:
+    import mlx_lm
+except ImportError:
+    mlx_lm = None
+
 
 class Model:
     def __init__(
         self,
+        engine: str,
         model_type: str,
         model_id: str,
         model_name: str,
@@ -17,6 +27,7 @@ class Model:
         repo_id: Optional[str] = None,
         filename: Optional[str] = None,
     ):
+        self.engine = engine
         self.model_type = model_type
         self.model_id = model_id
         self.model_name = model_name
@@ -25,7 +36,7 @@ class Model:
         self.filename = filename
 
     def is_online(self) -> bool:
-        return self.repo_id is not None and self.filename is not None
+        return self.repo_id is not None
 
 
 class ModelHandler:
@@ -59,11 +70,14 @@ class ModelHandler:
 
         if model.is_online():
             if model.model_type == "text":
-                loaded_model = Llama.from_pretrained(
-                    repo_id=model.repo_id,
-                    filename=model.filename,
-                    n_ctx=2048,
-                )
+                if model.engine == "llamacpp":
+                    loaded_model = Llama.from_pretrained(
+                        repo_id=model.repo_id,
+                        filename=model.filename,
+                        n_ctx=2048,
+                    )
+                else:  # model.engine == "mlx"
+                    loaded_model = mlx_lm.load(model.repo_id)
             elif model.model_type == "image":
                 if "moondream2" in model.repo_id:
                     chat_handler = MoondreamChatHandler.from_pretrained(
@@ -95,6 +109,7 @@ class ModelHandler:
             loaded_model = Llama(model_path=model.model_path)
 
         self.loaded_model = {
+            "engine": model.engine,
             "model": loaded_model,
             "last_used": time.time(),
         }
@@ -127,22 +142,40 @@ class ModelHandler:
         model_data["last_used"] = time.time()
         self._schedule_unload()
 
-        if image:
-            response = model.create_chat_completion(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": message},
-                            {"type": "image_url", "image_url": {"url": image}},
-                        ],
-                    }
-                ]
-            )
-        else:
-            response = model.create_chat_completion(messages=[{"role": "user", "content": message}])
+        print(f"Using model: {model_id}")
+        print(model_data)
 
-        return response["choices"][0]["message"]["content"]
+        if model_data["engine"] == "mlx":
+            model, tokenizer = model
+            if hasattr(tokenizer, "apply_chat_template") and tokenizer.chat_template is not None:
+                messages = [{"role": "user", "content": message}]
+                prompt = tokenizer.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=True
+                )
+            response = mlx_lm.generate(
+                model, tokenizer, prompt=prompt, verbose=True, max_tokens=2048
+            )
+            return response
+        elif model_data["engine"] == "llamacpp":
+            if image:
+                response = model.create_chat_completion(
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": message},
+                                {"type": "image_url", "image_url": {"url": image}},
+                            ],
+                        }
+                    ]
+                )
+            else:
+                response = model.create_chat_completion(
+                    messages=[{"role": "user", "content": message}]
+                )
+            return response["choices"][0]["message"]["content"]
+        else:
+            return "Unsupported engine"
 
     def _schedule_unload(self):
         if self.unload_timer:

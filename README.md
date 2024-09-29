@@ -18,6 +18,8 @@ AI-powered assistant to help you with your daily tasks, powered by Llama 3.2. It
 
 This assistant can run offline on your local machine, and it respects your privacy by not sending any data to external servers.
 
+**NOTE: This branch causes a crash on macOS, when loading both mlx and llamaCPP.**
+
 ![Screenshot](https://raw.githubusercontent.com/vietanhdev/llama-assistant/refs/heads/main/screenshot.png)
 
 <img width="682" alt="settings" src="https://github.com/user-attachments/assets/58093a7b-95f3-435a-8c7a-013cba946332">

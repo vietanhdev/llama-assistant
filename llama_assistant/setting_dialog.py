@@ -11,11 +11,13 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QCheckBox,
     QGroupBox,
+    QLabel,
 )
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 
+from llama_assistant import config
 from llama_assistant.shortcut_recorder import ShortcutRecorder
 from llama_assistant.config import models
 
@@ -86,16 +88,44 @@ class SettingsDialog(QDialog):
         group_box = QGroupBox("Model Settings")
         layout = QFormLayout()
 
+        if not config.is_mlx_supported:
+            note_label = QLabel(
+                "Install mlx-lm to run mlx engine models (pip install mlx-lm). This is supposed to be faster on Apple Sillicon chips."
+            )
+            note_label.setWordWrap(True)
+            # Smaller font size for the note
+            font = note_label.font()
+            font.setPointSize(10)
+            note_label.setFont(font)
+            layout.addRow(note_label)
+
+        # Engine selector for text model
+        self.text_engine_combo = QComboBox()
+        self.text_engine_combo.addItems(self.get_unique_engines())
+        self.text_engine_combo.currentTextChanged.connect(self.update_text_model_combo)
+        layout.addRow("Text Model Engine:", self.text_engine_combo)
+
+        # Text model selector
         self.text_model_combo = QComboBox()
-        self.text_model_combo.addItems(self.get_model_names_by_type("text"))
         layout.addRow("Text-only Model:", self.text_model_combo)
 
+        # Multimodal model selector (LlamaCpp only)
         self.multimodal_model_combo = QComboBox()
-        self.multimodal_model_combo.addItems(self.get_model_names_by_type("image"))
+        self.multimodal_model_combo.addItems(
+            self.get_model_names_by_type_and_engine("image", "llamacpp")
+        )
         layout.addRow("Multimodal Model:", self.multimodal_model_combo)
+
+        # Add a note about the multimodal model
+        note_label = QLabel("Note: Multimodal models are limited to LlamaCpp engine.")
+        note_label.setWordWrap(True)
+        layout.addRow(note_label)
 
         group_box.setLayout(layout)
         self.main_layout.addWidget(group_box)
+
+        # Initialize text model combo
+        self.update_text_model_combo(self.text_engine_combo.currentText())
 
     def create_voice_activation_settings_group(self):
         group_box = QGroupBox("Voice Activation Settings")
@@ -116,8 +146,20 @@ class SettingsDialog(QDialog):
         self.settingsSaved.emit()
         super().accept()
 
-    def get_model_names_by_type(self, model_type):
-        return [model["model_id"] for model in models if model["model_type"] == model_type]
+    def get_unique_engines(self):
+        return sorted(set(model["engine"] for model in models))
+
+    def get_model_names_by_type_and_engine(self, model_type, engine):
+        return [
+            model["model_id"]
+            for model in models
+            if model["model_type"] == model_type and model["engine"] == engine
+        ]
+
+    def update_text_model_combo(self, engine):
+        self.text_model_combo.clear()
+        text_models = self.get_model_names_by_type_and_engine("text", engine)
+        self.text_model_combo.addItems(text_models)
 
     def choose_color(self):
         color = QColorDialog.getColor()
@@ -141,12 +183,16 @@ class SettingsDialog(QDialog):
             self.color = QColor(settings.get("color", "#1E1E1E"))
             self.transparency_slider.setValue(int(settings.get("transparency", 90)))
 
+            text_engine = settings.get("text_engine")
+            if text_engine in self.get_unique_engines():
+                self.text_engine_combo.setCurrentText(text_engine)
+
             text_model = settings.get("text_model")
-            if text_model in self.get_model_names_by_type("text"):
+            if text_model in self.get_model_names_by_type_and_engine("text", text_engine):
                 self.text_model_combo.setCurrentText(text_model)
 
             multimodal_model = settings.get("multimodal_model")
-            if multimodal_model in self.get_model_names_by_type("image"):
+            if multimodal_model in self.get_model_names_by_type_and_engine("image", "llamacpp"):
                 self.multimodal_model_combo.setCurrentText(multimodal_model)
 
             self.hey_llama_chat_checkbox.setChecked(settings.get("hey_llama_chat", False))
@@ -161,6 +207,7 @@ class SettingsDialog(QDialog):
             "shortcut": self.shortcut_recorder.text(),
             "color": self.color.name(),
             "transparency": self.transparency_slider.value(),
+            "text_engine": self.text_engine_combo.currentText(),
             "text_model": self.text_model_combo.currentText(),
             "multimodal_model": self.multimodal_model_combo.currentText(),
             "hey_llama_chat": self.hey_llama_chat_checkbox.isChecked(),
