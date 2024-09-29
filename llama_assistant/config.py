@@ -52,6 +52,22 @@ DEFAULT_MODELS = [
         "filename": "*text-model*",
     },
     {
+        "model_name": "Llava-1.5",
+        "model_id": "mys/ggml_llava-v1.5-7b/q4_k",
+        "model_type": "image",
+        "model_path": None,
+        "repo_id": "mys/ggml_llava-v1.5-7b",
+        "filename": "*q4_k.gguf",
+    },
+    {
+        "model_name": "Llava-1.5",
+        "model_id": "mys/ggml_llava-v1.5-7b/f16",
+        "model_type": "image",
+        "model_path": None,
+        "repo_id": "mys/ggml_llava-v1.5-7b",
+        "filename": "*f16.gguf",
+    },
+    {
         "model_name": "MiniCPM-V-2_6-gguf",
         "model_id": "openbmb/MiniCPM-V-2_6-gguf-Q4_K_M",
         "model_type": "image",

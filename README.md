@@ -28,18 +28,22 @@ This assistant can run offline on your local machine, and it respects your priva
 - 📝 Text-only models:
   - [Llama 3.2](https://github.com/facebookresearch/llama) - 1B, 3B (4/8-bit quantized)
   - [Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF) (4-bit quantized)
+  - And other models that [LlamaCPP](https://github.com/ggerganov/llama.cpp) supports via custom models. [See the list](https://github.com/ggerganov/llama.cpp).
 
 - 🖼️ Multimodal models:
   - [Moondream2](https://huggingface.co/vikhyatk/moondream2)
   - [MiniCPM-v2.6](https://huggingface.co/openbmb/MiniCPM-V-2_6-gguf)
+  - [LLaVA 1.5/1.6](https://llava-vl.github.io/)
+  - Besides supported models, you can try other variants via custom models.
 
 ## TODO
 
 - [x] 🖼️ Support multimodal model: [moondream2](https://huggingface.co/vikhyatk/moondream2).
 - [x] 🗣️ Add wake word detection: "Hey Llama!".
+- [x] Custom models: Add support for custom models.
+- [x] 📚 Support 5 other text models.
+- [x] 🖼️ Support 5 other multimodal models.
 - [ ] 🎙️ Add offline STT support: WhisperCPP. [Experimental Code](llama_assistant/speech_recognition_whisper_experimental.py).
-- [ ] 📚 Support 5 other text models.
-- [ ] 🖼️ Support 5 other multimodal models.
 - [ ] 🧠 Knowledge database: Langchain or LlamaIndex?.
 - [ ] 🔌 Plugin system for extensibility.
 - [ ] 📰 News and weather updates.

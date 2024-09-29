@@ -2,7 +2,12 @@ from typing import List, Dict, Optional
 import time
 from threading import Timer
 from llama_cpp import Llama
-from llama_cpp.llama_chat_format import MoondreamChatHandler, MiniCPMv26ChatHandler
+from llama_cpp.llama_chat_format import (
+    MoondreamChatHandler,
+    MiniCPMv26ChatHandler,
+    Llava15ChatHandler,
+    Llava16ChatHandler,
+)
 
 from llama_assistant import config
 
@@ -69,7 +74,7 @@ class ModelHandler:
                     n_ctx=2048,
                 )
             elif model.model_type == "image":
-                if "moondream2" in model.repo_id:
+                if "moondream2" in model.model_id:
                     chat_handler = MoondreamChatHandler.from_pretrained(
                         repo_id="vikhyatk/moondream2",
                         filename="*mmproj*",
@@ -80,8 +85,30 @@ class ModelHandler:
                         chat_handler=chat_handler,
                         n_ctx=2048,
                     )
-                elif "MiniCPM" in model.repo_id:
+                elif "MiniCPM" in model.model_id:
                     chat_handler = MiniCPMv26ChatHandler.from_pretrained(
+                        repo_id=model.repo_id,
+                        filename="*mmproj*",
+                    )
+                    loaded_model = Llama.from_pretrained(
+                        repo_id=model.repo_id,
+                        filename=model.filename,
+                        chat_handler=chat_handler,
+                        n_ctx=2048,
+                    )
+                elif "llava-v1.5" in model.model_id:
+                    chat_handler = Llava15ChatHandler.from_pretrained(
+                        repo_id=model.repo_id,
+                        filename="*mmproj*",
+                    )
+                    loaded_model = Llama.from_pretrained(
+                        repo_id=model.repo_id,
+                        filename=model.filename,
+                        chat_handler=chat_handler,
+                        n_ctx=2048,
+                    )
+                elif "llava-v1.6" in model.model_id:
+                    chat_handler = Llava16ChatHandler.from_pretrained(
                         repo_id=model.repo_id,
                         filename="*mmproj*",
                     )
