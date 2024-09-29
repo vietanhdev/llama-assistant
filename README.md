@@ -41,11 +41,11 @@ This assistant can run offline on your local machine, and it respects your priva
 
 - [x] 🖼️ Support multimodal model: [moondream2](https://huggingface.co/vikhyatk/moondream2).
 - [x] 🗣️ Add wake word detection: "Hey Llama!".
-- [x] Custom models: Add support for custom models.
+- [x] 🛠️ Custom models: Add support for custom models.
 - [x] 📚 Support 5 other text models.
 - [x] 🖼️ Support 5 other multimodal models.
 - [x] ⚡ Streaming support for response.
-- [ ] 🎙️ Add offline STT support: WhisperCPP. [Experimental Code](llama_assistant/speech_recognition_whisper_experimental.py).
+- [ ] 🎙️ Add offline STT support: WhisperCPP (WIP - [Experimental Code](llama_assistant/speech_recognition_whisper_experimental.py)).
 - [ ] 🧠 Knowledge database: Langchain or LlamaIndex?.
 - [ ] 🔌 Plugin system for extensibility.
 - [ ] 📰 News and weather updates.
