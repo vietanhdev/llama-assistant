@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llama-assistant"
-version = "0.1.20"
+version = "0.1.21"
 authors = [
     {name = "Viet-Anh Nguyen", email = "vietanh.dev@gmail.com"},
 ]
@@ -52,7 +52,7 @@ include = ["llama_assistant*"]
 exclude = ["tests*"]
 
 [tool.setuptools.package-data]
-"llama_assistant.resources" = ["*.onnx"]
+"llama_assistant.resources" = ["*.png", "*.onnx"]
 
 
 [tool.black]

@@ -1,6 +1,7 @@
 import json
-import markdown
+from importlib import resources
 from pathlib import Path
+
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -35,8 +36,8 @@ from PyQt6.QtGui import (
     QDropEvent,
     QFont,
     QBitmap,
-    QTextCursor,
 )
+
 from llama_assistant.wake_word_detector import WakeWordDetector
 from llama_assistant.custom_plaintext_editor import CustomPlainTextEdit
 from llama_assistant.global_hotkey import GlobalHotkey
@@ -213,12 +214,12 @@ class LlamaAssistant(QMainWindow):
         self.mic_button.setStyleSheet(
             """
             QPushButton {
-                background-color: rgba(255, 255, 255, 0.3);
+                background-color: rgba(100, 100, 100, 200);
                 border: none;
                 border-radius: 20px;
             }
             QPushButton:hover {
-                background-color: rgba(255, 255, 255, 0.5);
+                background-color: rgba(100, 100, 100, 230);
             }
         """
         )
@@ -229,7 +230,7 @@ class LlamaAssistant(QMainWindow):
         close_button.setStyleSheet(
             """
             QPushButton {
-                background-color: rgba(255, 0, 0, 0.7);
+                background-color: rgba(255, 0, 0, 150);
                 color: white;
                 border: none;
                 border-radius: 15px;
@@ -239,7 +240,7 @@ class LlamaAssistant(QMainWindow):
                 height: 30px;
             }
             QPushButton:hover {
-                background-color: rgba(255, 0, 0, 0.9);
+                background-color: rgba(255, 0, 0, 200);
             }
         """
         )
@@ -316,12 +317,12 @@ class LlamaAssistant(QMainWindow):
             }
             QScrollBar:vertical {
                 border: none;
-                background: rgba(255, 255, 255, 0.1);
+                background: rgba(255, 255, 255, 200);
                 width: 10px;
                 margin: 0px 0px 0px 0px;
             }
             QScrollBar::handle:vertical {
-                background: rgba(255, 255, 255, 0.3);
+                background: rgba(255, 255, 255, 230);
                 min-height: 20px;
                 border-radius: 5px;
             }
@@ -420,7 +421,7 @@ class LlamaAssistant(QMainWindow):
 
     def init_tray(self):
         self.tray_icon = QSystemTrayIcon(self)
-        self.tray_icon.setIcon(self.create_tray_icon())
+        self.tray_icon.setIcon(self.load_tray_icon())
 
         tray_menu = QMenu()
         show_action = tray_menu.addAction("Show")
@@ -438,14 +439,10 @@ class LlamaAssistant(QMainWindow):
         if reason == QSystemTrayIcon.ActivationReason.Trigger:
             self.toggle_visibility()
 
-    def create_tray_icon(self):
-        pixmap = QPixmap(48, 48)
-        pixmap.fill(Qt.GlobalColor.black)
-        painter = QPainter(pixmap)
-        painter.setPen(QPen(Qt.GlobalColor.white))
-        painter.setFont(QFont("Arial", 30, QFont.Weight.Bold))
-        painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, "L")
-        painter.end()
+    def load_tray_icon(self):
+        with resources.path("llama_assistant.resources", "logo.png") as path:
+            pixmap = QPixmap(str(path))
+            pixmap = pixmap.scaled(48, 48, Qt.AspectRatioMode.KeepAspectRatio)
         return QIcon(pixmap)
 
     def toggle_visibility(self):
@@ -569,7 +566,7 @@ class LlamaAssistant(QMainWindow):
             remove_button.setStyleSheet(
                 """
                 QPushButton {
-                    background-color: rgba(128, 128, 128, 0.7);
+                    background-color: rgba(50, 50, 50, 200);
                     color: white;
                     border: none;
                     border-radius: 8px;
@@ -579,7 +576,7 @@ class LlamaAssistant(QMainWindow):
                     height: 16px;
                 }
                 QPushButton:hover {
-                    background-color: rgba(128, 128, 128, 0.9);
+                    background-color: rgba(50, 50, 50, 230);
                 }
                 """
             )
@@ -697,7 +694,8 @@ class LlamaAssistant(QMainWindow):
         self.stop_voice_input()
 
     def closeEvent(self, event):
-        self.wake_word_detector.stop()
+        if self.wake_word_detector is not None:
+            self.wake_word_detector.stop()
         super().closeEvent(event)
 
 
