@@ -11,13 +11,16 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QCheckBox,
     QGroupBox,
+    QLineEdit,
+    QMessageBox,
+    QListWidget,
+    QLabel,
 )
-from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6.QtGui import QColor
 
 from llama_assistant.shortcut_recorder import ShortcutRecorder
-from llama_assistant.config import models
+from llama_assistant import config
 
 
 class SettingsDialog(QDialog):
@@ -54,45 +57,73 @@ class SettingsDialog(QDialog):
 
     def create_general_settings_group(self):
         group_box = QGroupBox("General Settings")
-        layout = QFormLayout()
+        layout = QVBoxLayout()
 
+        shortcut_layout = QHBoxLayout()
+        shortcut_label = QLabel("Shortcut:")
         self.shortcut_recorder = ShortcutRecorder()
-        layout.addRow("Shortcut:", self.shortcut_recorder)
+        shortcut_layout.addWidget(shortcut_label)
+        shortcut_layout.addWidget(self.shortcut_recorder)
+        shortcut_layout.addStretch()
+        layout.addLayout(shortcut_layout)
 
         self.reset_shortcut_button = QPushButton("Reset Shortcut")
         self.reset_shortcut_button.clicked.connect(self.reset_shortcut)
-        layout.addRow(self.reset_shortcut_button)
+        layout.addWidget(self.reset_shortcut_button)
 
         group_box.setLayout(layout)
         self.main_layout.addWidget(group_box)
 
     def create_appearance_settings_group(self):
         group_box = QGroupBox("Appearance Settings")
-        layout = QFormLayout()
+        layout = QVBoxLayout()
 
+        color_layout = QHBoxLayout()
+        color_label = QLabel("Background Color:")
         self.color_button = QPushButton("Choose Color")
         self.color_button.clicked.connect(self.choose_color)
-        layout.addRow("Background Color:", self.color_button)
+        color_layout.addWidget(color_label)
+        color_layout.addWidget(self.color_button)
+        color_layout.addStretch()
+        layout.addLayout(color_layout)
 
+        transparency_layout = QHBoxLayout()
+        transparency_label = QLabel("Transparency:")
         self.transparency_slider = QSlider(Qt.Orientation.Horizontal)
         self.transparency_slider.setRange(10, 100)
         self.transparency_slider.setValue(90)
-        layout.addRow("Transparency:", self.transparency_slider)
+        transparency_layout.addWidget(transparency_label)
+        transparency_layout.addWidget(self.transparency_slider)
+        layout.addLayout(transparency_layout)
 
         group_box.setLayout(layout)
         self.main_layout.addWidget(group_box)
 
     def create_model_settings_group(self):
         group_box = QGroupBox("Model Settings")
-        layout = QFormLayout()
+        layout = QVBoxLayout()
 
+        text_model_layout = QHBoxLayout()
+        text_model_label = QLabel("Text-only Model:")
         self.text_model_combo = QComboBox()
         self.text_model_combo.addItems(self.get_model_names_by_type("text"))
-        layout.addRow("Text-only Model:", self.text_model_combo)
+        text_model_layout.addWidget(text_model_label)
+        text_model_layout.addWidget(self.text_model_combo)
+        text_model_layout.addStretch()
+        layout.addLayout(text_model_layout)
 
+        multimodal_model_layout = QHBoxLayout()
+        multimodal_model_label = QLabel("Multimodal Model:")
         self.multimodal_model_combo = QComboBox()
         self.multimodal_model_combo.addItems(self.get_model_names_by_type("image"))
-        layout.addRow("Multimodal Model:", self.multimodal_model_combo)
+        multimodal_model_layout.addWidget(multimodal_model_label)
+        multimodal_model_layout.addWidget(self.multimodal_model_combo)
+        multimodal_model_layout.addStretch()
+        layout.addLayout(multimodal_model_layout)
+
+        self.manage_custom_models_button = QPushButton("Manage Custom Models")
+        self.manage_custom_models_button.clicked.connect(self.open_custom_models_dialog)
+        layout.addWidget(self.manage_custom_models_button)
 
         group_box.setLayout(layout)
         self.main_layout.addWidget(group_box)
@@ -117,7 +148,7 @@ class SettingsDialog(QDialog):
         super().accept()
 
     def get_model_names_by_type(self, model_type):
-        return [model["model_id"] for model in models if model["model_type"] == model_type]
+        return [model["model_id"] for model in config.models if model["model_type"] == model_type]
 
     def choose_color(self):
         color = QColorDialog.getColor()
@@ -178,3 +209,170 @@ class SettingsDialog(QDialog):
         settings = self.get_settings()
         with open(settings_file, "w") as f:
             json.dump(settings, f)
+
+    def open_custom_models_dialog(self):
+        dialog = CustomModelsDialog(self)
+        if dialog.exec():
+            # Refresh the model combos after managing custom models
+            self.refresh_model_combos()
+
+    def refresh_model_combos(self):
+        current_text_model = self.text_model_combo.currentText()
+        current_multimodal_model = self.multimodal_model_combo.currentText()
+
+        self.text_model_combo.clear()
+        self.text_model_combo.addItems(self.get_model_names_by_type("text"))
+        self.multimodal_model_combo.clear()
+        self.multimodal_model_combo.addItems(self.get_model_names_by_type("image"))
+
+        # Restore previously selected models if they still exist
+        if current_text_model in self.get_model_names_by_type("text"):
+            self.text_model_combo.setCurrentText(current_text_model)
+        if current_multimodal_model in self.get_model_names_by_type("image"):
+            self.multimodal_model_combo.setCurrentText(current_multimodal_model)
+
+
+class CustomModelsDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Manage Custom Models")
+        self.layout = QVBoxLayout(self)
+
+        self.model_list = QListWidget()
+        self.model_list.itemSelectionChanged.connect(self.load_selected_model)
+        self.layout.addWidget(self.model_list)
+
+        form_layout = QFormLayout()
+        self.model_name_input = QLineEdit()
+        self.model_id_input = QLineEdit()
+        self.model_type_input = QComboBox()
+        self.model_type_input.addItems(["text", "image"])
+        self.repo_id_input = QLineEdit()
+        self.filename_input = QLineEdit()
+
+        form_layout.addRow("Model Name:", self.model_name_input)
+        form_layout.addRow("Model ID:", self.model_id_input)
+        form_layout.addRow("Model Type:", self.model_type_input)
+        form_layout.addRow("Repo ID:", self.repo_id_input)
+        form_layout.addRow("Filename:", self.filename_input)
+
+        self.layout.addLayout(form_layout)
+
+        button_layout = QHBoxLayout()
+        self.add_button = QPushButton("Add Model")
+        self.add_button.clicked.connect(self.add_model)
+        self.update_button = QPushButton("Update Model")
+        self.update_button.clicked.connect(self.update_model)
+        self.remove_button = QPushButton("Remove Model")
+        self.remove_button.clicked.connect(self.remove_model)
+        button_layout.addWidget(self.add_button)
+        button_layout.addWidget(self.update_button)
+        button_layout.addWidget(self.remove_button)
+
+        self.layout.addLayout(button_layout)
+
+        self.refresh_model_list()
+
+    def refresh_model_list(self):
+        self.model_list.clear()
+        for model in config.custom_models:
+            self.model_list.addItem(f"{model['model_name']} ({model['model_type']})")
+
+    def load_selected_model(self):
+        selected_items = self.model_list.selectedItems()
+        if selected_items:
+            selected_index = self.model_list.row(selected_items[0])
+            model = config.custom_models[selected_index]
+            self.model_name_input.setText(model["model_name"])
+            self.model_id_input.setText(model["model_id"])
+            self.model_type_input.setCurrentText(model["model_type"])
+            self.repo_id_input.setText(model["repo_id"])
+            self.filename_input.setText(model["filename"])
+
+    def add_model(self):
+        model_name = self.model_name_input.text()
+        model_id = self.model_id_input.text()
+        model_type = self.model_type_input.currentText()
+        repo_id = self.repo_id_input.text()
+        filename = self.filename_input.text()
+
+        if not all([model_name, model_id, model_type, repo_id, filename]):
+            QMessageBox.warning(self, "Missing Information", "Please fill in all fields.")
+            return
+
+        new_model = {
+            "model_name": model_name,
+            "model_id": model_id,
+            "model_type": model_type,
+            "model_path": None,
+            "repo_id": repo_id,
+            "filename": filename,
+        }
+
+        config.custom_models.append(new_model)
+        config.models = config.DEFAULT_MODELS + config.custom_models
+        config.save_custom_models()
+        self.refresh_model_list()
+        self.clear_inputs()
+        QMessageBox.information(
+            self, "Model Added", f"Model '{model_name}' has been added successfully."
+        )
+
+    def update_model(self):
+        selected_items = self.model_list.selectedItems()
+        if not selected_items:
+            QMessageBox.warning(self, "No Selection", "Please select a model to update.")
+            return
+
+        selected_index = self.model_list.row(selected_items[0])
+        model_name = self.model_name_input.text()
+        model_id = self.model_id_input.text()
+        model_type = self.model_type_input.currentText()
+        repo_id = self.repo_id_input.text()
+        filename = self.filename_input.text()
+
+        if not all([model_name, model_id, model_type, repo_id, filename]):
+            QMessageBox.warning(self, "Missing Information", "Please fill in all fields.")
+            return
+
+        updated_model = {
+            "model_name": model_name,
+            "model_id": model_id,
+            "model_type": model_type,
+            "model_path": None,
+            "repo_id": repo_id,
+            "filename": filename,
+        }
+
+        config.custom_models[selected_index] = updated_model
+        config.models = config.DEFAULT_MODELS + config.custom_models
+        config.save_custom_models()
+        self.refresh_model_list()
+        self.clear_inputs()
+        QMessageBox.information(
+            self, "Model Updated", f"Model '{model_name}' has been updated successfully."
+        )
+
+    def remove_model(self):
+        selected_items = self.model_list.selectedItems()
+        if not selected_items:
+            QMessageBox.warning(self, "No Selection", "Please select a model to remove.")
+            return
+
+        selected_index = self.model_list.row(selected_items[0])
+        model_name = config.custom_models[selected_index]["model_name"]
+        del config.custom_models[selected_index]
+        config.models = config.DEFAULT_MODELS + config.custom_models
+        config.save_custom_models()
+        self.refresh_model_list()
+        self.clear_inputs()
+        QMessageBox.information(
+            self, "Model Removed", f"Model '{model_name}' has been removed successfully."
+        )
+
+    def clear_inputs(self):
+        self.model_name_input.clear()
+        self.model_id_input.clear()
+        self.model_type_input.setCurrentIndex(0)
+        self.repo_id_input.clear()
+        self.filename_input.clear()

@@ -1,4 +1,8 @@
-models = [
+import json
+from pathlib import Path
+
+
+DEFAULT_MODELS = [
     {
         "model_name": "Llama-3.2-1B-Instruct-Q4_K_M-GGUF",
         "model_id": "hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF",
@@ -64,3 +68,29 @@ models = [
         "filename": "*Q8_0.gguf",
     },
 ]
+
+
+home_dir = Path.home()
+config_file = home_dir / "llama_assistant" / "config.json"
+
+if config_file.exists():
+    with open(config_file, "r") as f:
+        config_data = json.load(f)
+    custom_models = config_data.get("custom_models", [])
+else:
+    custom_models = []
+
+models = DEFAULT_MODELS + custom_models
+
+# Save the initial configuration if it doesn't exist
+if not config_file.exists():
+    config_dir = config_file.parent
+    if not config_dir.exists():
+        config_dir.mkdir(parents=True)
+    with open(config_file, "w") as f:
+        json.dump({"custom_models": custom_models}, f, indent=2)
+
+
+def save_custom_models():
+    with open(config_file, "w") as f:
+        json.dump({"custom_models": custom_models}, f, indent=2)

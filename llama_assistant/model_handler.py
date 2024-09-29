@@ -4,7 +4,7 @@ from threading import Timer
 from llama_cpp import Llama
 from llama_cpp.llama_chat_format import MoondreamChatHandler, MiniCPMv26ChatHandler
 
-from llama_assistant.config import models
+from llama_assistant import config
 
 
 class Model:
@@ -35,6 +35,9 @@ class ModelHandler:
         self.current_model_id: Optional[str] = None
         self.unload_timer: Optional[Timer] = None
 
+    def refresh_supported_models(self):
+        self.supported_models = [Model(**model_data) for model_data in config.models]
+
     def list_supported_models(self) -> List[Model]:
         return self.supported_models
 
@@ -47,6 +50,7 @@ class ModelHandler:
             self.unload_model()
 
     def load_model(self, model_id: str) -> Optional[Dict]:
+        self.refresh_supported_models()
         if self.current_model_id == model_id and self.loaded_model:
             return self.loaded_model
 
@@ -154,15 +158,6 @@ class ModelHandler:
 
 # Example usage
 handler = ModelHandler()
-
-for model_data in models:
-    model = Model(**model_data)
-    handler.add_supported_model(model)
-
-# List supported models
-print("Supported models:")
-for model in handler.list_supported_models():
-    print(f"- {model.model_name} (ID: {model.model_id})")
 
 if __name__ == "__main__":
     # Use text model

@@ -20,7 +20,7 @@ This assistant can run offline on your local machine, and it respects your priva
 
 ![Screenshot](https://raw.githubusercontent.com/vietanhdev/llama-assistant/refs/heads/main/screenshot.png)
 
-<img width="682" alt="settings" src="https://github.com/user-attachments/assets/58093a7b-95f3-435a-8c7a-013cba946332">
+<img width="682" alt="settings" src="https://raw.githubusercontent.com/vietanhdev/llama-assistant/refs/heads/main/docs/custom-models.png">
 
 
 ## Supported Models
