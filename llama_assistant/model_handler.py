@@ -148,7 +148,7 @@ class ModelHandler:
         model_id: str,
         message: str,
         image: Optional[str] = None,
-        n_ctx: int = 2048,
+        stream: bool = False,
     ) -> str:
         model_data = self.load_model(model_id)
         if not model_data:
@@ -168,12 +168,15 @@ class ModelHandler:
                             {"type": "image_url", "image_url": {"url": image}},
                         ],
                     }
-                ]
+                ],
+                stream=stream,
             )
         else:
-            response = model.create_chat_completion(messages=[{"role": "user", "content": message}])
+            response = model.create_chat_completion(
+                messages=[{"role": "user", "content": message}], stream=stream
+            )
 
-        return response["choices"][0]["message"]["content"]
+        return response
 
     def _schedule_unload(self):
         if self.unload_timer:

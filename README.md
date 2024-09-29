@@ -44,6 +44,7 @@ This assistant can run offline on your local machine, and it respects your priva
 - [x] Custom models: Add support for custom models.
 - [x] 📚 Support 5 other text models.
 - [x] 🖼️ Support 5 other multimodal models.
+- [x] ⚡ Streaming support for response.
 - [ ] 🎙️ Add offline STT support: WhisperCPP. [Experimental Code](llama_assistant/speech_recognition_whisper_experimental.py).
 - [ ] 🧠 Knowledge database: Langchain or LlamaIndex?.
 - [ ] 🔌 Plugin system for extensibility.
@@ -158,7 +159,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgements
 
-- [Radio icons created by Freepik - Flaticon](https://www.flaticon.com/free-icons/radio)
 - [Llama 3.2](https://github.com/facebookresearch/llama) by Meta AI Research
 
 ## Star History

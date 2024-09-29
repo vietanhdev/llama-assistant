@@ -1,8 +1,6 @@
 import json
 import markdown
 from pathlib import Path
-from importlib import resources
-
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -21,6 +19,8 @@ from PyQt6.QtCore import (
     QPoint,
     QSize,
     QTimer,
+    QThread,
+    pyqtSignal,
 )
 from PyQt6.QtGui import (
     QIcon,
@@ -35,12 +35,11 @@ from PyQt6.QtGui import (
     QDropEvent,
     QFont,
     QBitmap,
+    QTextCursor,
 )
 from llama_assistant.wake_word_detector import WakeWordDetector
-
 from llama_assistant.custom_plaintext_editor import CustomPlainTextEdit
 from llama_assistant.global_hotkey import GlobalHotkey
-from llama_assistant.loading_animation import LoadingAnimation
 from llama_assistant.setting_dialog import SettingsDialog
 from llama_assistant.speech_recognition import SpeechRecognitionThread
 from llama_assistant.utils import image_to_base64_data_uri
@@ -49,7 +48,32 @@ from llama_assistant.icons import (
     create_icon_from_svg,
     copy_icon_svg,
     clear_icon_svg,
+    microphone_icon_svg,
 )
+
+
+class ProcessingThread(QThread):
+    update_signal = pyqtSignal(str)
+    finished_signal = pyqtSignal()
+
+    def __init__(self, model, prompt, image=None):
+        super().__init__()
+        self.model = model
+        self.prompt = prompt
+        self.image = image
+
+    def run(self):
+        output = model_handler.chat_completion(
+            self.model, self.prompt, image=self.image, stream=True
+        )
+        for chunk in output:
+            delta = chunk["choices"][0]["delta"]
+            if "role" in delta:
+                print(delta["role"], end=": ")
+            elif "content" in delta:
+                print(delta["content"], end="")
+                self.update_signal.emit(delta["content"])
+        self.finished_signal.emit()
 
 
 class LlamaAssistant(QMainWindow):
@@ -67,6 +91,8 @@ class LlamaAssistant(QMainWindow):
         self.image_label = None
         self.current_text_model = self.settings.get("text_model")
         self.current_multimodal_model = self.settings.get("multimodal_model")
+        self.processing_thread = None
+        self.response_start_position = 0
 
     def init_wake_word_detector(self):
         if self.wake_word_detector is not None:
@@ -180,23 +206,19 @@ class LlamaAssistant(QMainWindow):
         )
         top_layout.addWidget(self.input_field)
 
-        # Load the mic icon from resources
-        with resources.path("llama_assistant.resources", "mic_icon.png") as path:
-            mic_icon = QIcon(str(path))
-
         self.mic_button = QPushButton(self)
-        self.mic_button.setIcon(mic_icon)
+        self.mic_button.setIcon(create_icon_from_svg(microphone_icon_svg))
         self.mic_button.setIconSize(QSize(24, 24))
         self.mic_button.setFixedSize(40, 40)
         self.mic_button.setStyleSheet(
             """
             QPushButton {
-                background-color: rgba(255, 255, 255, 0.1);
+                background-color: rgba(255, 255, 255, 0.3);
                 border: none;
                 border-radius: 20px;
             }
             QPushButton:hover {
-                background-color: rgba(255, 255, 255, 0.2);
+                background-color: rgba(255, 255, 255, 0.5);
             }
         """
         )
@@ -290,6 +312,7 @@ class LlamaAssistant(QMainWindow):
             QScrollArea {
                 border: none;
                 background-color: transparent;
+                border-radius: 10px;
             }
             QScrollBar:vertical {
                 border: none;
@@ -314,10 +337,6 @@ class LlamaAssistant(QMainWindow):
         self.scroll_area.setWidget(self.chat_box)
         self.scroll_area.hide()
         main_layout.addWidget(self.scroll_area)
-
-        self.loading_animation = LoadingAnimation(self)
-        self.loading_animation.setFixedSize(50, 50)
-        self.loading_animation.hide()
 
         self.oldPos = self.pos()
 
@@ -354,7 +373,7 @@ class LlamaAssistant(QMainWindow):
         self.chat_box.setStyleSheet(
             f"""QTextBrowser {{ {base_style}
                                     background-color: rgba{QColor(self.settings["color"]).lighter(120).getRgb()[:3] + (opacity,)};
-                                    border-radius: 5px;
+                                    border-radius: 10px;
                                     }}"""
         )
         button_style = f"""
@@ -441,8 +460,6 @@ class LlamaAssistant(QMainWindow):
     def on_submit(self):
         message = self.input_field.toPlainText()
         self.input_field.clear()
-        self.loading_animation.move(self.width() // 2 - 25, self.height() // 2 - 25)
-        self.loading_animation.start_animation()
 
         if self.dropped_image:
             self.process_image_with_prompt(self.dropped_image, message)
@@ -452,6 +469,7 @@ class LlamaAssistant(QMainWindow):
             QTimer.singleShot(100, lambda: self.process_text(message))
 
     def process_text(self, message, task="chat"):
+        self.show_chat_box()
         if task == "chat":
             prompt = message + " \n" + "Generate a short and simple response."
         elif task == "summarize":
@@ -465,32 +483,49 @@ class LlamaAssistant(QMainWindow):
         elif task == "write email":
             prompt = f"Write an email about: {message}"
 
-        response = model_handler.chat_completion(self.current_text_model, prompt)
-        self.last_response = response
-
         self.chat_box.append(f"<b>You:</b> {message}")
-        self.chat_box.append(f"<b>AI ({task}):</b> {markdown.markdown(response)}")
-        self.loading_animation.stop_animation()
-        self.show_chat_box()
+        self.chat_box.append(f"<b>AI ({task}):</b> ")
+
+        self.processing_thread = ProcessingThread(self.current_text_model, prompt)
+        self.processing_thread.update_signal.connect(self.update_chat_box)
+        self.processing_thread.finished_signal.connect(self.on_processing_finished)
+        self.processing_thread.start()
 
     def process_image_with_prompt(self, image_path, prompt):
-        response = model_handler.chat_completion(
-            self.current_multimodal_model, prompt, image=image_to_base64_data_uri(image_path)
-        )
+        self.show_chat_box()
         self.chat_box.append(f"<b>You:</b> [Uploaded an image: {image_path}]")
         self.chat_box.append(f"<b>You:</b> {prompt}")
-        self.chat_box.append(
-            f"<b>AI:</b> {markdown.markdown(response)}" if response else "No response"
+        self.chat_box.append("<b>AI:</b> ")
+
+        image = image_to_base64_data_uri(image_path)
+        self.processing_thread = ProcessingThread(
+            self.current_multimodal_model, prompt, image=image
         )
-        self.loading_animation.stop_animation()
-        self.show_chat_box()
+        self.processing_thread.update_signal.connect(self.update_chat_box)
+        self.processing_thread.finished_signal.connect(self.on_processing_finished)
+        self.processing_thread.start()
+
+    def update_chat_box(self, text):
+        self.chat_box.textCursor().insertText(text)
+        self.chat_box.verticalScrollBar().setValue(self.chat_box.verticalScrollBar().maximum())
+        self.last_response += text
+
+    def on_processing_finished(self):
+        # Clear the last_response for the next interaction
+        self.last_response = ""
+
+        # Reset the response start position
+        self.response_start_position = 0
+
+        # New line for the next interaction
+        self.chat_box.append("")
 
     def show_chat_box(self):
         if self.scroll_area.isHidden():
             self.scroll_area.show()
             self.copy_button.show()
             self.clear_button.show()
-            self.setFixedHeight(600)  # Increase this value if needed
+            self.setFixedHeight(500)  # Increase this value if needed
         self.chat_box.verticalScrollBar().setValue(self.chat_box.verticalScrollBar().maximum())
 
     def copy_result(self):
@@ -617,12 +652,12 @@ class LlamaAssistant(QMainWindow):
             self.mic_button.setStyleSheet(
                 """
                 QPushButton {
-                    background-color: rgba(255, 0, 0, 0.3);
+                    background-color: rgba(255, 0, 0, 0.5);
                     border: none;
                     border-radius: 20px;
                 }
                 QPushButton:hover {
-                    background-color: rgba(255, 0, 0, 0.5);
+                    background-color: rgba(255, 0, 0, 0.6);
                 }
             """
             )
@@ -639,12 +674,12 @@ class LlamaAssistant(QMainWindow):
             self.mic_button.setStyleSheet(
                 """
                 QPushButton {
-                    background-color: rgba(255, 255, 255, 0.1);
+                    background-color: rgba(255, 255, 255, 0.5);
                     border: none;
                     border-radius: 20px;
                 }
                 QPushButton:hover {
-                    background-color: rgba(255, 255, 255, 0.2);
+                    background-color: rgba(255, 255, 255, 0.6);
                 }
             """
             )
