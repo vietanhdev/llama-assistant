@@ -28,14 +28,13 @@ from PyQt6.QtGui import (
     QPixmap,
     QColor,
     QPainter,
-    QPen,
     QGuiApplication,
     QShortcut,
     QKeySequence,
     QDragEnterEvent,
     QDropEvent,
-    QFont,
     QBitmap,
+    QTextCursor,
 )
 
 from llama_assistant.wake_word_detector import WakeWordDetector
@@ -458,6 +457,13 @@ class LlamaAssistant(QMainWindow):
         message = self.input_field.toPlainText()
         self.input_field.clear()
 
+        if message == "cls" or message == "clear":
+            self.clear_chat()
+            self.remove_image_thumbnail()
+            return
+
+        self.last_response = ""
+
         if self.dropped_image:
             self.process_image_with_prompt(self.dropped_image, message)
             self.dropped_image = None
@@ -480,8 +486,8 @@ class LlamaAssistant(QMainWindow):
         elif task == "write email":
             prompt = f"Write an email about: {message}"
 
-        self.chat_box.append(f"<b>You:</b> {message}")
-        self.chat_box.append(f"<b>AI ({task}):</b> ")
+        self.chat_box.append(f'<span style="color: #aaa;"><b>You:</b></span> {message}')
+        self.chat_box.append(f'<span style="color: #aaa;"><b>AI ({task}):</b></span> ')
 
         self.processing_thread = ProcessingThread(self.current_text_model, prompt)
         self.processing_thread.update_signal.connect(self.update_chat_box)
@@ -490,9 +496,11 @@ class LlamaAssistant(QMainWindow):
 
     def process_image_with_prompt(self, image_path, prompt):
         self.show_chat_box()
-        self.chat_box.append(f"<b>You:</b> [Uploaded an image: {image_path}]")
-        self.chat_box.append(f"<b>You:</b> {prompt}")
-        self.chat_box.append("<b>AI:</b> ")
+        self.chat_box.append(
+            '<span style="color: #aaa;"><b>You:</b></span> [Uploaded an image: {image_path}]'
+        )
+        self.chat_box.append(f'<span style="color: #aaa;"><b>You:</b></span> {prompt}')
+        self.chat_box.append('<span style="color: #aaa;"><b>AI:</b></span> ')
 
         image = image_to_base64_data_uri(image_path)
         self.processing_thread = ProcessingThread(
@@ -503,18 +511,15 @@ class LlamaAssistant(QMainWindow):
         self.processing_thread.start()
 
     def update_chat_box(self, text):
-        self.chat_box.textCursor().insertText(text)
+        cursor = self.chat_box.textCursor()
+        cursor.movePosition(QTextCursor.MoveOperation.End)
+        self.chat_box.setTextCursor(cursor)
+        cursor.insertText(text)
         self.chat_box.verticalScrollBar().setValue(self.chat_box.verticalScrollBar().maximum())
         self.last_response += text
 
     def on_processing_finished(self):
-        # Clear the last_response for the next interaction
-        self.last_response = ""
-
-        # Reset the response start position
         self.response_start_position = 0
-
-        # New line for the next interaction
         self.chat_box.append("")
 
     def show_chat_box(self):
@@ -535,6 +540,10 @@ class LlamaAssistant(QMainWindow):
         self.chat_box.clear()
         self.last_response = ""
         self.scroll_area.hide()
+        self.input_field.clear()
+        self.input_field.setFocus()
+        self.copy_button.hide()
+        self.clear_button.hide()
         self.setFixedHeight(200)  # Reset to default height
 
     def dragEnterEvent(self, event: QDragEnterEvent):
