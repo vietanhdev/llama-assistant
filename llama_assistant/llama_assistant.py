@@ -1,6 +1,9 @@
 import json
+import copy
+import time
 from importlib import resources
 from pathlib import Path
+import traceback
 
 from PyQt6.QtWidgets import (
     QApplication,
@@ -14,6 +17,7 @@ from PyQt6.QtWidgets import (
     QMenu,
     QLabel,
     QScrollArea,
+    QMessageBox,
 )
 from PyQt6.QtCore import (
     Qt,
@@ -37,6 +41,7 @@ from PyQt6.QtGui import (
     QTextCursor,
 )
 
+from llama_assistant import config
 from llama_assistant.wake_word_detector import WakeWordDetector
 from llama_assistant.custom_plaintext_editor import CustomPlainTextEdit
 from llama_assistant.global_hotkey import GlobalHotkey
@@ -118,21 +123,13 @@ class LlamaAssistant(QMainWindow):
             with open(settings_file, "r") as f:
                 self.settings = json.load(f)
             self.settings["text_model"] = self.settings.get(
-                "text_model", "hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF"
+                "text_model", config.DEFAULT_SETTINGS["text_model"]
             )
             self.settings["multimodal_model"] = self.settings.get(
-                "multimodal_model", "vikhyatk/moondream2"
+                "multimodal_model", config.DEFAULT_SETTINGS["multimodal_model"]
             )
         else:
-            self.settings = {
-                "shortcut": "<cmd>+<shift>+<space>",
-                "color": "#1E1E1E",
-                "transparency": 90,
-                "text_model": "hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF",
-                "multimodal_model": "vikhyatk/moondream2",
-                "hey_llama_chat": False,
-                "hey_llama_mic": False,
-            }
+            self.settings = copy.deepcopy(config.DEFAULT_SETTINGS)
             self.save_settings()
         if self.settings.get("hey_llama_chat", False) and self.wake_word_detector is None:
             self.init_wake_word_detector()
@@ -142,10 +139,21 @@ class LlamaAssistant(QMainWindow):
         self.current_multimodal_model = self.settings.get("multimodal_model")
 
     def setup_global_shortcut(self):
-        if hasattr(self, "global_hotkey"):
-            self.global_hotkey.stop()
-        self.global_hotkey = GlobalHotkey(self.settings["shortcut"])
-        self.global_hotkey.activated.connect(self.toggle_visibility)
+        try:
+            if hasattr(self, "global_hotkey"):
+                self.global_hotkey.stop()
+                time.sleep(0.1)  # Give a short delay to ensure the previous listener has stopped
+            try:
+                self.global_hotkey = GlobalHotkey(self.settings["shortcut"])
+                self.global_hotkey.activated.connect(self.toggle_visibility)
+            except Exception as e:
+                print(f"Error setting up global shortcut: {e}")
+                # Fallback to default shortcut if there's an error
+                self.global_hotkey = GlobalHotkey(config.DEFAULT_LAUNCH_SHORTCUT)
+                self.global_hotkey.activated.connect(self.toggle_visibility)
+        except Exception as e:
+            print(f"Error setting up global shortcut: {e}")
+            traceback.print_exc()
 
     def open_settings(self):
         dialog = SettingsDialog(self)
@@ -158,7 +166,30 @@ class LlamaAssistant(QMainWindow):
             self.update_styles()
 
             if old_shortcut != self.settings["shortcut"]:
-                self.setup_global_shortcut()
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Icon.Information)
+                msg.setText("Global shortcut has been updated")
+                msg.setInformativeText(
+                    "The changes will take effect after you restart the application."
+                )
+                msg.setWindowTitle("Restart Required")
+                msg.setStandardButtons(
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+                )
+                msg.button(QMessageBox.StandardButton.Yes).setText("Restart Now")
+                msg.button(QMessageBox.StandardButton.No).setText("Restart Later")
+                msg.setDefaultButton(QMessageBox.StandardButton.Yes)
+
+                result = msg.exec()
+
+                if result == QMessageBox.StandardButton.Yes:
+                    self.restart_application()
+                else:
+                    print("User chose to restart later.")
+
+    def restart_application(self):
+        QApplication.quit()
+        # The application will restart automatically because it is being run from a script
 
     def save_settings(self):
         home_dir = Path.home()

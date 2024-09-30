@@ -1,7 +1,16 @@
 import json
 from pathlib import Path
 
-
+DEFAULT_LAUNCH_SHORTCUT = "<cmd>+<shift>+<space>"
+DEFAULT_SETTINGS = {
+    "shortcut": DEFAULT_LAUNCH_SHORTCUT,
+    "color": "#1E1E1E",
+    "transparency": 95,
+    "text_model": "hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF",
+    "multimodal_model": "vikhyatk/moondream2",
+    "hey_llama_chat": False,
+    "hey_llama_mic": False,
+}
 DEFAULT_MODELS = [
     {
         "model_name": "Llama-3.2-1B-Instruct-Q4_K_M-GGUF",

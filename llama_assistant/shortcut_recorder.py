@@ -1,6 +1,12 @@
+import sys
+
 from PyQt6.QtWidgets import QLineEdit
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeyEvent, QKeySequence
+
+
+def is_macos():
+    return sys.platform == "darwin"
 
 
 class ShortcutRecorder(QLineEdit):
@@ -10,16 +16,39 @@ class ShortcutRecorder(QLineEdit):
         self.setPlaceholderText("Press a key combination")
         self.recorded_shortcut = None
 
+        # Set the style sheet for rounded corners
+        self.setStyleSheet(
+            """
+            QLineEdit {
+                border: 1px solid #a0a0a0;
+                border-radius: 7.5px;
+                padding: 2px 5px;
+                background-color: #fefefe;
+                color: #333333;
+                font-size: 14px;
+            }
+            QLineEdit:focus {
+                border-color: #3498db;
+            }
+        """
+        )
+
     def keyPressEvent(self, event: QKeyEvent):
         modifiers = []
         if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            modifiers.append("<ctrl>")
+            if is_macos():
+                modifiers.append("<cmd>")
+            else:
+                modifiers.append("<ctrl>")
         if event.modifiers() & Qt.KeyboardModifier.AltModifier:
             modifiers.append("<alt>")
         if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
             modifiers.append("<shift>")
         if event.modifiers() & Qt.KeyboardModifier.MetaModifier:
-            modifiers.append("<cmd>")  # Using <cmd> for Meta/Command key
+            if is_macos():
+                modifiers.append("<ctrl>")
+            else:
+                modifiers.append("<cmd>")
 
         key = event.key()
         if key not in (

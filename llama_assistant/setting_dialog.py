@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6.QtGui import QColor
+from pynput import keyboard
 
 from llama_assistant.shortcut_recorder import ShortcutRecorder
 from llama_assistant import config
@@ -156,7 +157,7 @@ class SettingsDialog(QDialog):
             self.color = color
 
     def reset_shortcut(self):
-        self.shortcut_recorder.setText("<cmd>+<shift>+<space>")
+        self.shortcut_recorder.setText(config.DEFAULT_LAUNCH_SHORTCUT)
 
     def update_hey_llama_mic_state(self, state):
         self.hey_llama_mic_checkbox.setEnabled(state == Qt.CheckState.Checked.value)
@@ -168,7 +169,12 @@ class SettingsDialog(QDialog):
         if settings_file.exists():
             with open(settings_file, "r") as f:
                 settings = json.load(f)
-            self.shortcut_recorder.setText(settings.get("shortcut", "<cmd>+<shift>+<space>"))
+            try:
+                keyboard.HotKey(keyboard.HotKey.parse(settings["shortcut"]), lambda: None)
+            except ValueError:
+                settings["shortcut"] = config.DEFAULT_LAUNCH_SHORTCUT
+                self.save_settings(settings)
+            self.shortcut_recorder.setText(settings.get("shortcut", config.DEFAULT_LAUNCH_SHORTCUT))
             self.color = QColor(settings.get("color", "#1E1E1E"))
             self.transparency_slider.setValue(int(settings.get("transparency", 90)))
 
@@ -198,15 +204,17 @@ class SettingsDialog(QDialog):
             "hey_llama_mic": self.hey_llama_mic_checkbox.isChecked(),
         }
 
-    def save_settings(self):
-        home_dir = Path.home()
-        settings_dir = home_dir / "llama_assistant"
-        settings_file = settings_dir / "settings.json"
+    def save_settings(self, settings=None):
+        if settings is None:
+            home_dir = Path.home()
+            settings_dir = home_dir / "llama_assistant"
+            settings_file = settings_dir / "settings.json"
 
-        if not settings_dir.exists():
-            settings_dir.mkdir(parents=True)
+            if not settings_dir.exists():
+                settings_dir.mkdir(parents=True)
 
-        settings = self.get_settings()
+            settings = self.get_settings()
+
         with open(settings_file, "w") as f:
             json.dump(settings, f)
 
