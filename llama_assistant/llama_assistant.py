@@ -378,9 +378,16 @@ class LlamaAssistant(QMainWindow):
         self.esc_shortcut.activated.connect(self.hide)
 
     def on_task_button_clicked(self):
+        message = self.input_field.toPlainText()
+        if message == "":
+            # Show a message box if the input field is empty
+            msg = QMessageBox()
+            msg.setText("Please enter a message first.")
+            msg.setWindowTitle("No Input")
+            msg.exec()
+            return
         sender = self.sender()
         task = sender.text().lower()
-        message = self.input_field.toPlainText()
         self.input_field.clear()
         self.process_text(message, task)
 
@@ -486,6 +493,8 @@ class LlamaAssistant(QMainWindow):
 
     def on_submit(self):
         message = self.input_field.toPlainText()
+        if message == "":
+            return
         self.input_field.clear()
 
         if message == "cls" or message == "clear":
