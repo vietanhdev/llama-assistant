@@ -1,4 +1,6 @@
 import sys
+import multiprocessing
+
 from PyQt6.QtWidgets import QApplication
 from llama_assistant.llama_assistant import LlamaAssistant
 
@@ -11,4 +13,5 @@ def main():
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     main()

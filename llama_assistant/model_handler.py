@@ -188,17 +188,3 @@ class ModelHandler:
 
 # Example usage
 handler = ModelHandler()
-
-if __name__ == "__main__":
-    # Use text model
-    result = handler.chat_completion("llama_text", "Tell me a joke")
-    print(result)
-
-    # Use image model
-    image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
-    result = handler.chat_completion("moondream", "What's in this image?", image=image_url)
-    print(result)
-
-    # Use local model
-    result = handler.chat_completion("local_model", "Hello, local model!")
-    print(result)

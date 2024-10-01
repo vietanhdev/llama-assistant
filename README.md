@@ -159,7 +159,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgements
 
-- [Llama 3.2](https://github.com/facebookresearch/llama) by Meta AI Research
+- The default model is [Llama 3.2](https://github.com/facebookresearch/llama) by Meta AI Research.
+- This project uses [LlamaCPP](https://github.com/ggerganov/llama.cpp) by Georgi Gerganov and contributors.
 
 ## Star History
 
@@ -168,4 +169,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 
 - Viet-Anh Nguyen - [vietanhdev](https://github.com/vietanhdev), [contact form](https://www.vietanh.dev/contact).
-- Project Link: [https://github.com/vietanhdev/llama-assistant](https://github.com/vietanhdev/llama-assistant)
+- Project Link: [https://github.com/vietanhdev/llama-assistant](https://github.com/vietanhdev/llama-assistant), [https://llama-assistant.nrl.ai/](https://llama-assistant.nrl.ai/).

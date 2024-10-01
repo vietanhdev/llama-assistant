@@ -5,3 +5,4 @@ pynput==1.7.7
 llama-cpp-python
 huggingface_hub==0.25.1
 openwakeword==0.6.0
+pyinstaller==6.10.0

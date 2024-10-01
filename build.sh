@@ -1,0 +1,1 @@
+pyinstaller --noconfirm LlamaAssistant.spec

@@ -47,7 +47,7 @@ from llama_assistant.custom_plaintext_editor import CustomPlainTextEdit
 from llama_assistant.global_hotkey import GlobalHotkey
 from llama_assistant.setting_dialog import SettingsDialog
 from llama_assistant.speech_recognition import SpeechRecognitionThread
-from llama_assistant.utils import image_to_base64_data_uri
+from llama_assistant.utils import image_to_base64_data_uri, load_image
 from llama_assistant.model_handler import handler as model_handler
 from llama_assistant.icons import (
     create_icon_from_svg,
@@ -477,9 +477,8 @@ class LlamaAssistant(QMainWindow):
             self.toggle_visibility()
 
     def load_tray_icon(self):
-        with resources.path("llama_assistant.resources", "logo.png") as path:
-            pixmap = QPixmap(str(path))
-            pixmap = pixmap.scaled(48, 48, Qt.AspectRatioMode.KeepAspectRatio)
+        icon_path = "llama_assistant/resources/logo.png"
+        pixmap = load_image(icon_path, size=(48, 48))
         return QIcon(pixmap)
 
     def toggle_visibility(self):
@@ -746,10 +745,3 @@ class LlamaAssistant(QMainWindow):
         if self.wake_word_detector is not None:
             self.wake_word_detector.stop()
         super().closeEvent(event)
-
-
-if __name__ == "__main__":
-    app = QApplication([])
-    assistant = LlamaAssistant()
-    assistant.show()
-    app.exec()

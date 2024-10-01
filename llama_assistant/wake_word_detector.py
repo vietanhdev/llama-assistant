@@ -6,6 +6,8 @@ from importlib import resources
 from PyQt6.QtCore import QThread, pyqtSignal
 import time
 
+from llama_assistant.utils import get_resource_path
+
 
 class WakeWordDetector(QThread):
     wakeword_detected = pyqtSignal(str)
@@ -33,11 +35,11 @@ class WakeWordDetector(QThread):
         self.n_models = 0
 
     def load_model(self):
-        with resources.path("llama_assistant.resources", "wk_hey_llama.onnx") as path:
-            self.owwModel = Model(
-                wakeword_models=[str(path)],
-                inference_framework=self.inference_framework,
-            )
+        path = get_resource_path("llama_assistant/resources/wk_hey_llama.onnx")
+        self.owwModel = Model(
+            wakeword_models=[path],
+            inference_framework=self.inference_framework,
+        )
         self.n_models = len(self.owwModel.models.keys())
 
     def unload_model(self):
@@ -88,23 +90,3 @@ class WakeWordDetector(QThread):
 
         print("\033[F" * (4 * self.n_models + 1))
         print(output_string_header, "                             ", end="\r")
-
-
-if __name__ == "__main__":
-    from PyQt6.QtWidgets import QApplication
-    import sys
-
-    app = QApplication(sys.argv)
-
-    detector = WakeWordDetector()
-    detector.wakeword_detected.connect(lambda mdl: print(f"Main thread: Wakeword detected - {mdl}"))
-
-    print("\n\n")
-    print("#" * 100)
-    print("Listening for wakewords...")
-    print("#" * 100)
-    print("\n" * (detector.n_models * 3))
-
-    detector.start()
-
-    sys.exit(app.exec())

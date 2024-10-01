@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=LlamaAssistant
+Comment=Your Local AI Assistant with Llama Models
+Exec=LlamaAssistant
+Icon=llama_assistant/resources/logo.png
+Terminal=false
+Type=Application
+Categories=Graphics;RasterGraphics;MachineLearning
