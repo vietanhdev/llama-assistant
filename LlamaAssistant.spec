@@ -49,11 +49,11 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     name='LlamaAssistant',
-    debug=True,
+    debug=False,
     strip=False,
     upx=False,
     runtime_tmpdir=None,
-    console=True,
+    console=False,
     icon='llama_assistant/resources/icon.icns',
 )
 app = BUNDLE(

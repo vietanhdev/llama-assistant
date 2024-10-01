@@ -30,7 +30,6 @@ class WakeWordDetector(QThread):
             frames_per_buffer=self.chunk_size,
         )
 
-        download_models()
         self.owwModel = None
         self.n_models = 0
 
@@ -48,6 +47,7 @@ class WakeWordDetector(QThread):
 
     def run(self):
         self.running = True
+        download_models()
         self.load_model()
         while self.running:
             try:
