@@ -58,7 +58,7 @@ class SpeechRecognitionThread(QThread):
                         transcription = re.sub(r"\(.*\)", "", transcription)
 
                         print(f"Transcription: {transcription}")
-                        # os.remove(tmp_filepath)
+                        os.remove(tmp_filepath)
 
                         self.finished.emit(transcription)
                     except sr.WaitTimeoutError:
