@@ -46,7 +46,7 @@ from llama_assistant.wake_word_detector import WakeWordDetector
 from llama_assistant.custom_plaintext_editor import CustomPlainTextEdit
 from llama_assistant.global_hotkey import GlobalHotkey
 from llama_assistant.setting_dialog import SettingsDialog
-from llama_assistant.speech_recognition import SpeechRecognitionThread
+from llama_assistant.speech_recognition_thread import SpeechRecognitionThread
 from llama_assistant.utils import image_to_base64_data_uri, load_image
 from llama_assistant.model_handler import handler as model_handler
 from llama_assistant.icons import (

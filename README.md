@@ -23,18 +23,17 @@ This assistant can run offline on your local machine, and it respects your priva
 
 ![Settings](https://raw.githubusercontent.com/vietanhdev/llama-assistant/refs/heads/main/docs/custom-models.png)
 
-
 ## Supported Models
 
 - 📝 Text-only models:
-  - [Llama 3.2](https://github.com/facebookresearch/llama) - 1B, 3B (4/8-bit quantized)
-  - [Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF) (4-bit quantized)
+  - [Llama 3.2](https://github.com/facebookresearch/llama) - 1B, 3B (4/8-bit quantized).
+  - [Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF) (4-bit quantized).
   - And other models that [LlamaCPP](https://github.com/ggerganov/llama.cpp) supports via custom models. [See the list](https://github.com/ggerganov/llama.cpp).
 
 - 🖼️ Multimodal models:
-  - [Moondream2](https://huggingface.co/vikhyatk/moondream2)
-  - [MiniCPM-v2.6](https://huggingface.co/openbmb/MiniCPM-V-2_6-gguf)
-  - [LLaVA 1.5/1.6](https://llava-vl.github.io/)
+  - [Moondream2](https://huggingface.co/vikhyatk/moondream2).
+  - [MiniCPM-v2.6](https://huggingface.co/openbmb/MiniCPM-V-2_6-gguf).
+  - [LLaVA 1.5/1.6](https://llava-vl.github.io/).
   - Besides supported models, you can try other variants via custom models.
 
 ## TODO
@@ -45,7 +44,7 @@ This assistant can run offline on your local machine, and it respects your priva
 - [x] 📚 Support 5 other text models.
 - [x] 🖼️ Support 5 other multimodal models.
 - [x] ⚡ Streaming support for response.
-- [ ] 🎙️ Add offline STT support: WhisperCPP (WIP - [Experimental Code](llama_assistant/speech_recognition_whisper_experimental.py)).
+- [x] 🎙️ Add offline STT support: WhisperCPP.
 - [ ] 🧠 Knowledge database: Langchain or LlamaIndex?.
 - [ ] 🔌 Plugin system for extensibility.
 - [ ] 📰 News and weather updates.
@@ -59,11 +58,11 @@ This assistant can run offline on your local machine, and it respects your priva
 
 ## Features
 
-- 🎙️ Voice recognition for hands-free interaction
-- 💬 Natural language processing with Llama 3.2
-- 🖼️ Image analysis capabilities (TODO)
-- ⚡ Global hotkey for quick access (Cmd+Shift+Space on macOS)
-- 🎨 Customizable UI with adjustable transparency
+- 🎙️ Voice recognition for hands-free interaction.
+- 💬 Natural language processing with Llama 3.2.
+- 🖼️ Image analysis capabilities (TODO).
+- ⚡ Global hotkey for quick access (Cmd+Shift+Space on macOS).
+- 🎨 Customizable UI with adjustable transparency.
 
 **Note:** This project is a work in progress, and new features are being added regularly.
 
@@ -89,17 +88,17 @@ pip install pyaudio
 
 1. Clone the repository:
 
-   ```bash
-   git clone https://github.com/vietanhdev/llama-assistant.git
-   cd llama-assistant
-   ```
+```bash
+git clone https://github.com/vietanhdev/llama-assistant.git
+cd llama-assistant
+```
 
 2. Install the required dependencies:
 
-   ```bash
-   pip install -r requirements.txt
-   pip install pyaudio
-   ```
+```bash
+pip install -r requirements.txt
+pip install pyaudio
+```
 
 </details>
 
