@@ -158,8 +158,8 @@ This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) fi
 
 ## Acknowledgements
 
-- The default model is [Llama 3.2](https://github.com/facebookresearch/llama) by Meta AI Research.
-- This project uses [LlamaCPP](https://github.com/ggerganov/llama.cpp) by Georgi Gerganov and contributors.
+- This project uses [llama.cpp](https://github.com/ggerganov/llama.cpp), [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) for running large language models. The default model is [Llama 3.2](https://github.com/facebookresearch/llama) by Meta AI Research.
+- Speech recognition is powered by [whisper.cpp](hhttps://github.com/ggerganov/whisper.cpp) and [whisper-cpp-python](https://github.com/carloscdias/whisper-cpp-python).
 
 ## Star History
 
