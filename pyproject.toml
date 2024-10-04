@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llama-assistant"
-version = "0.1.30"
+version = "0.1.31"
 authors = [
     {name = "Viet-Anh Nguyen", email = "vietanh.dev@gmail.com"},
 ]
@@ -32,7 +32,7 @@ dependencies = [
     "SpeechRecognition",
     "huggingface_hub",
     "openwakeword",
-    "whisper-cpp-python",
+    "pywhispercpp",
 ]
 dynamic = []
 

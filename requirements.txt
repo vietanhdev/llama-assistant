@@ -6,4 +6,4 @@ llama-cpp-python
 huggingface_hub==0.25.1
 openwakeword==0.6.0
 pyinstaller==6.10.0
-whisper-cpp-python==0.2.0
+git+https://github.com/vietanhdev/pywhispercpp.git

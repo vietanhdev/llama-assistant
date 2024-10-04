@@ -116,11 +116,19 @@ For more details, see the `PyAudio installation`_ page.
 .. _Homebrew: http://brew.sh
 </details>
 
+**On Windows: Installing the MinGW-w64 toolchain**
+
+<details>
+- Download and install with instructions from [here](https://code.visualstudio.com/docs/cpp/config-mingw).
+- Direct download link: [MinGW-w64](https://github.com/msys2/msys2-installer/releases/download/2024-01-13/msys2-x86_64-20240113.exe).
+</details>
+
 **Install from PyPI:**
 
 ```bash
-pip install llama-assistant
 pip install pyaudio
+pip install git+https://github.com/vietanhdev/pywhispercpp.git
+pip install llama-assistant
 ```
 
 **Or install from source:**
@@ -134,11 +142,13 @@ git clone https://github.com/vietanhdev/llama-assistant.git
 cd llama-assistant
 ```
 
-2. Install the required dependencies:
+2. Install the required dependencies and install the package:
 
 ```bash
-pip install -r requirements.txt
 pip install pyaudio
+pip install git+https://github.com/vietanhdev/pywhispercpp.git
+pip install -r requirements.txt
+pip install .
 ```
 
 </details>
@@ -200,10 +210,10 @@ This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) fi
 ## Acknowledgements
 
 - This project uses [llama.cpp](https://github.com/ggerganov/llama.cpp), [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) for running large language models. The default model is [Llama 3.2](https://github.com/facebookresearch/llama) by Meta AI Research.
-- Speech recognition is powered by [whisper.cpp](hhttps://github.com/ggerganov/whisper.cpp) and [whisper-cpp-python](https://github.com/carloscdias/whisper-cpp-python).
+- Speech recognition is powered by [whisper.cpp](hhttps://github.com/ggerganov/whisper.cpp) and [pywhispercpp](https://github.com/abdeladim-s/pywhispercpp).
 
 ## Star History
-
+$$
 [![Star History Chart](https://api.star-history.com/svg?repos=vietanhdev/llama-assistant&type=Date)](https://star-history.com/#vietanhdev/llama-assistant&Date)
 
 ## Contact
