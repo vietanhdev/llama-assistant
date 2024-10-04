@@ -63,12 +63,12 @@ exe = EXE(
     upx=False,
     runtime_tmpdir=None,
     console=False,
-    icon='llama_assistant/resources/icon.icns',
+    icon='llama_assistant/resources/icon.ico',
 )
 app = BUNDLE(
     exe,
     name='LlamaAssistant.app',
-    icon='llama_assistant/resources/icon.icns',
+    icon='llama_assistant/resources/icon.ico',
     bundle_identifier=None,
     info_plist={'NSHighResolutionCapable': 'True'},
 )
