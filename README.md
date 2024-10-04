@@ -5,7 +5,7 @@
 <p align="center"><b>Website:</b> <a href="https://llama-assistant.nrl.ai/" target="_blank">llama-assistant.nrl.ai</a></p>
 </p>
 
-![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
+[![Llama Assistant](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)](https://www.youtube.com/watch?v=kyRf8maKuDc)
 
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)
 ![Llama 3](https://img.shields.io/badge/Llama-3-green.svg)
@@ -15,11 +15,13 @@
 ![Forks](https://img.shields.io/github/forks/vietanhdev/llama-assistant.svg)
 ![Issues](https://img.shields.io/github/issues/vietanhdev/llama-assistant.svg)
 
+<a href="https://www.producthunt.com/posts/llama-assistant?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-llama&#0045;assistant" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=494187&theme=light" alt="Llama&#0032;Assistant - Local&#0032;AI&#0032;Assistant&#0032;That&#0032;Respects&#0032;Your&#0032;Privacy&#0033;&#0032;🔒 | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
 AI-powered assistant to help you with your daily tasks, powered by Llama 3.2. It can recognize your voice, process natural language, and perform various actions based on your commands: summarizing text, rephrasing sentences, answering questions, writing emails, and more.
 
 This assistant can run offline on your local machine, and it respects your privacy by not sending any data to external servers.
 
-![Screenshot](https://raw.githubusercontent.com/vietanhdev/llama-assistant/refs/heads/main/screenshot.png)
+[![Screenshot](https://raw.githubusercontent.com/vietanhdev/llama-assistant/refs/heads/main/screenshot.png)](https://www.youtube.com/watch?v=kyRf8maKuDc)
 
 ![Settings](https://raw.githubusercontent.com/vietanhdev/llama-assistant/refs/heads/main/docs/custom-models.png)
 
