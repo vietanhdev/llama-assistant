@@ -6,13 +6,9 @@ import os, sys
 
 sys.setrecursionlimit(5000)  # required on Windows
 
-# Get the package path
+# Collect llama.cpp
 package_path = get_package_paths('llama_cpp')[0]
-
-# Collect data files
 datas = collect_data_files('llama_cpp')
-
-# Append the additional .dll or .so file
 if os.name == 'nt':  # Windows
     for l in ["ggml", "llama", "llava"]:
         dll_path = os.path.join(package_path, 'llama_cpp', 'lib', f'{l}.dll')
@@ -25,6 +21,19 @@ elif os.name == 'posix':  # Linux
     for l in ["ggml", "llama", "llava"]:
         so_path = os.path.join(package_path, 'llama_cpp', 'lib', f'lib{l}.so')
         datas.append((so_path, 'llama_cpp/lib'))
+
+# Collect whisper.cpp
+package_path = get_package_paths('whisper_cpp_python')[0]
+datas += collect_data_files('whisper_cpp_python')
+if os.name == 'nt':  # Windows
+    dll_path = os.path.join(package_path, 'whisper_cpp_python', 'whisper.dll')
+    datas.append((dll_path, 'whisper_cpp_python'))
+elif sys.platform == 'darwin':  # Mac
+    dylib_path = os.path.join(package_path, 'whisper_cpp_python', 'libwhisper.dylib')
+    datas.append((dylib_path, 'whisper_cpp_python'))
+elif os.name == 'posix':  # Linux
+    so_path = os.path.join(package_path, 'whisper_cpp_python', 'libwhisper.so')
+    datas.append((so_path, 'whisper_cpp_python'))
 
 datas += [
     ('llama_assistant/resources/*.onnx', 'llama_assistant/resources'),
