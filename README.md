@@ -15,7 +15,7 @@
 ![Forks](https://img.shields.io/github/forks/vietanhdev/llama-assistant.svg)
 ![Issues](https://img.shields.io/github/issues/vietanhdev/llama-assistant.svg)
 
-<a href="https://www.producthunt.com/posts/llama-assistant?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-llama&#0045;assistant" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=494187&theme=light" alt="Llama&#0032;Assistant - Local&#0032;AI&#0032;Assistant&#0032;That&#0032;Respects&#0032;Your&#0032;Privacy&#0033;&#0032;🔒 | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+<a href="https://www.producthunt.com/products/llama-assistant/reviews?utm_source=badge-product_review&utm_medium=badge&utm_souce=badge-llama&#0045;assistant" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=610711&theme=light" alt="Llama&#0032;Assistant - Local&#0032;AI&#0032;Assistant&#0032;That&#0032;Respects&#0032;Your&#0032;Privacy&#0033;&#0032;🔒 | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
 AI-powered assistant to help you with your daily tasks, powered by Llama 3.2. It can recognize your voice, process natural language, and perform various actions based on your commands: summarizing text, rephrasing sentences, answering questions, writing emails, and more.
 
