@@ -213,7 +213,7 @@ This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) fi
 - Speech recognition is powered by [whisper.cpp](hhttps://github.com/ggerganov/whisper.cpp) and [pywhispercpp](https://github.com/abdeladim-s/pywhispercpp).
 
 ## Star History
-$$
+
 [![Star History Chart](https://api.star-history.com/svg?repos=vietanhdev/llama-assistant&type=Date)](https://star-history.com/#vietanhdev/llama-assistant&Date)
 
 ## Contact
