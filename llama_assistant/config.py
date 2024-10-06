@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import pathlib
 
 DEFAULT_LAUNCH_SHORTCUT = "<cmd>+<shift>+<space>"
 DEFAULT_SETTINGS = {
@@ -61,6 +62,14 @@ DEFAULT_MODELS = [
         "filename": "*q4_k_m.gguf",
     },
     {
+        "model_name": "gemma-2-2b-it-GGUF-Q4_K_M",
+        "model_id": "lmstudio-community/gemma-2-2b-it-GGUF-Q4_K_M",
+        "model_type": "text",
+        "model_path": None,
+        "repo_id": "lmstudio-community/gemma-2-2b-it-GGUF",
+        "filename": "gemma-2-2b-it-Q4_K_M.gguf"
+    },
+    {
         "model_name": "Moondream2",
         "model_id": "vikhyatk/moondream2",
         "model_type": "image",
@@ -104,11 +113,17 @@ DEFAULT_MODELS = [
 
 
 home_dir = Path.home()
-config_file = home_dir / "llama_assistant" / "config.json"
+llama_assistant_dir = home_dir / "llama_assistant"
+pathlib.Path.mkdir(llama_assistant_dir, parents=True, exist_ok=True)
+custom_models_file = llama_assistant_dir / "custom_models.json"
+settings_file = llama_assistant_dir / "settings.json"
 
-if config_file.exists():
-    with open(config_file, "r") as f:
-        config_data = json.load(f)
+if custom_models_file.exists():
+    with open(custom_models_file, "r") as f:
+        try:
+            config_data = json.load(f)
+        except json.JSONDecodeError:
+            config_data = {"custom_models": []}
     custom_models = config_data.get("custom_models", [])
 else:
     custom_models = []
@@ -116,14 +131,17 @@ else:
 models = DEFAULT_MODELS + custom_models
 
 # Save the initial configuration if it doesn't exist
-if not config_file.exists():
-    config_dir = config_file.parent
+if not custom_models_file.exists():
+    config_dir = custom_models_file.parent
     if not config_dir.exists():
         config_dir.mkdir(parents=True)
-    with open(config_file, "w") as f:
+    with open(custom_models_file, "w") as f:
         json.dump({"custom_models": custom_models}, f, indent=2)
 
 
+# Save the custom models to the file
 def save_custom_models():
-    with open(config_file, "w") as f:
+    global models
+    with open(custom_models_file, "w") as f:
         json.dump({"custom_models": custom_models}, f, indent=2)
+    models = DEFAULT_MODELS + custom_models

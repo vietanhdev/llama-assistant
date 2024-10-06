@@ -33,6 +33,7 @@ https://github.com/user-attachments/assets/af2c544b-6d46-4c44-87d8-9a051ba213db
   - [Llama 3.2](https://github.com/facebookresearch/llama) - 1B, 3B (4/8-bit quantized).
   - [Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF) (4-bit quantized).
   - [Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF) (4-bit quantized).
+  - [gemma-2-2b-it](https://huggingface.co/lmstudio-community/gemma-2-2b-it-GGUF-Q4_K_M) (4-bit quantized).
   - And other models that [LlamaCPP](https://github.com/ggerganov/llama.cpp) supports via custom models. [See the list](https://github.com/ggerganov/llama.cpp).
 
 - 🖼️ Multimodal models:

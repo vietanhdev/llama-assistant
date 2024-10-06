@@ -112,15 +112,8 @@ class LlamaAssistant(QMainWindow):
         self.wake_word_detector = None
 
     def load_settings(self):
-        home_dir = Path.home()
-        settings_dir = home_dir / "llama_assistant"
-        settings_file = settings_dir / "settings.json"
-
-        if not settings_dir.exists():
-            settings_dir.mkdir(parents=True)
-
-        if settings_file.exists():
-            with open(settings_file, "r") as f:
+        if config.settings_file.exists():
+            with open(config.settings_file, "r") as f:
                 self.settings = json.load(f)
             self.settings["text_model"] = self.settings.get(
                 "text_model", config.DEFAULT_SETTINGS["text_model"]
@@ -192,9 +185,7 @@ class LlamaAssistant(QMainWindow):
         # The application will restart automatically because it is being run from a script
 
     def save_settings(self):
-        home_dir = Path.home()
-        settings_file = home_dir / "llama_assistant" / "settings.json"
-        with open(settings_file, "w") as f:
+        with open(config.settings_file, "w") as f:
             json.dump(self.settings, f)
 
     def init_ui(self):

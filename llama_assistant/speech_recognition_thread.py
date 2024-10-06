@@ -8,6 +8,8 @@ import speech_recognition as sr
 
 from pywhispercpp.model import Model
 
+from llama_assistant.config import llama_assistant_dir
+
 class SpeechRecognitionThread(QThread):
     finished = pyqtSignal(str)
     error = pyqtSignal(str)
@@ -24,7 +26,7 @@ class SpeechRecognitionThread(QThread):
         )
 
         # Create temporary folder for audio files
-        self.tmp_audio_folder = Path.home() / "llama-assistant" / "tmp_audio"
+        self.tmp_audio_folder = llama_assistant_dir / "tmp_audio"
         self.tmp_audio_folder.mkdir(parents=True, exist_ok=True)
 
     def run(self):

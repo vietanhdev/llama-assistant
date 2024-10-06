@@ -163,11 +163,8 @@ class SettingsDialog(QDialog):
         self.hey_llama_mic_checkbox.setEnabled(state == Qt.CheckState.Checked.value)
 
     def load_settings(self):
-        home_dir = Path.home()
-        settings_file = home_dir / "llama_assistant" / "settings.json"
-
-        if settings_file.exists():
-            with open(settings_file, "r") as f:
+        if config.settings_file.exists():
+            with open(config.settings_file, "r") as f:
                 settings = json.load(f)
             try:
                 keyboard.HotKey(keyboard.HotKey.parse(settings["shortcut"]), lambda: None)
@@ -206,16 +203,9 @@ class SettingsDialog(QDialog):
 
     def save_settings(self, settings=None):
         if settings is None:
-            home_dir = Path.home()
-            settings_dir = home_dir / "llama_assistant"
-            settings_file = settings_dir / "settings.json"
-
-            if not settings_dir.exists():
-                settings_dir.mkdir(parents=True)
-
             settings = self.get_settings()
 
-        with open(settings_file, "w") as f:
+        with open(config.settings_file, "w") as f:
             json.dump(settings, f)
 
     def open_custom_models_dialog(self):
@@ -223,6 +213,7 @@ class SettingsDialog(QDialog):
         if dialog.exec():
             # Refresh the model combos after managing custom models
             self.refresh_model_combos()
+        self.refresh_model_combos()  # Run refresh_model_combos after closing the custom models editor
 
     def refresh_model_combos(self):
         current_text_model = self.text_model_combo.currentText()
@@ -318,7 +309,6 @@ class CustomModelsDialog(QDialog):
         }
 
         config.custom_models.append(new_model)
-        config.models = config.DEFAULT_MODELS + config.custom_models
         config.save_custom_models()
         self.refresh_model_list()
         self.clear_inputs()
