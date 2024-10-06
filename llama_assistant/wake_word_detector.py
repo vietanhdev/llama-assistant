@@ -2,7 +2,6 @@ import pyaudio
 import numpy as np
 from openwakeword.model import Model
 from openwakeword.utils import download_models
-from importlib import resources
 from PyQt6.QtCore import QThread, pyqtSignal
 import time
 

@@ -53,6 +53,14 @@ DEFAULT_MODELS = [
         "filename": "*q4_k_m.gguf",
     },
     {
+        "model_name": "Qwen2.5-1.5B-Instruct-GGUF",
+        "model_id": "Qwen/Qwen2.5-1.5B-Instruct-GGUF-q4_k_m",
+        "model_type": "text",
+        "model_path": None,
+        "repo_id": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+        "filename": "*q4_k_m.gguf",
+    },
+    {
         "model_name": "Moondream2",
         "model_id": "vikhyatk/moondream2",
         "model_type": "image",

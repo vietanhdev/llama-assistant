@@ -32,6 +32,7 @@ https://github.com/user-attachments/assets/af2c544b-6d46-4c44-87d8-9a051ba213db
 - 📝 Text-only models:
   - [Llama 3.2](https://github.com/facebookresearch/llama) - 1B, 3B (4/8-bit quantized).
   - [Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF) (4-bit quantized).
+  - [Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF) (4-bit quantized).
   - And other models that [LlamaCPP](https://github.com/ggerganov/llama.cpp) supports via custom models. [See the list](https://github.com/ggerganov/llama.cpp).
 
 - 🖼️ Multimodal models:
@@ -127,7 +128,9 @@ For more details, see the `PyAudio installation`_ page.
 
 ```bash
 pip install pyaudio
-pip install git+https://github.com/vietanhdev/pywhispercpp.git
+git clone --recursive https://github.com/vietanhdev/pywhispercpp
+cd pywhispercpp
+pip install .
 pip install llama-assistant
 ```
 
@@ -146,7 +149,10 @@ cd llama-assistant
 
 ```bash
 pip install pyaudio
-pip install git+https://github.com/vietanhdev/pywhispercpp.git
+git clone --recursive https://github.com/vietanhdev/pywhispercpp
+cd pywhispercpp
+pip install .
+cd ../llama-assistant
 pip install -r requirements.txt
 pip install .
 ```
