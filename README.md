@@ -77,11 +77,11 @@ https://github.com/user-attachments/assets/af2c544b-6d46-4c44-87d8-9a051ba213db
 - ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?style=flat-square&logo=python&logoColor=white)
 - ![Llama](https://img.shields.io/badge/Llama-3.2-yellow?style=flat-square&logo=meta&logoColor=white)
 - ![SpeechRecognition](https://img.shields.io/badge/SpeechRecognition-3.8-green?style=flat-square&logo=google&logoColor=white)
-- ![PyQt](https://img.shields.io/badge/PyQt-6-41CD52?style=flat-square&logo=qt&logoColor=white)
+- ![yt](https://img.shields.io/badge/PyQt-5-41CD52?style=flat-square&logo=qt&logoColor=white)
 
 ## Installation
 
-**Recommended Python Version:** 3.12.
+**Recommended Python Version:** 3.10.
 
 **Install PortAudio:**
 
