@@ -1,8 +1,6 @@
 import json
 import copy
 import time
-from importlib import resources
-from pathlib import Path
 import traceback
 
 from PyQt5.QtWidgets import (
@@ -706,7 +704,6 @@ class LlamaAssistant(QMainWindow):
         if self.speech_thread and self.speech_thread.isRunning():
             self.is_listening = False
             self.speech_thread.stop()
-            self.speech_thread.wait()
             self.mic_button.setStyleSheet(
                 """
                 QPushButton {
