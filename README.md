@@ -81,6 +81,8 @@ https://github.com/user-attachments/assets/af2c544b-6d46-4c44-87d8-9a051ba213db
 
 ## Installation
 
+**Recommended Python Version:** 3.12.
+
 **Install PortAudio:**
 
 <details>
@@ -129,9 +131,7 @@ For more details, see the `PyAudio installation`_ page.
 
 ```bash
 pip install pyaudio
-git clone --recursive https://github.com/vietanhdev/pywhispercpp
-cd pywhispercpp
-pip install .
+pip install git+https://github.com/stlukey/whispercpp.py
 pip install llama-assistant
 ```
 
@@ -150,10 +150,7 @@ cd llama-assistant
 
 ```bash
 pip install pyaudio
-git clone --recursive https://github.com/vietanhdev/pywhispercpp
-cd pywhispercpp
-pip install .
-cd ../llama-assistant
+pip install git+https://github.com/stlukey/whispercpp.py
 pip install -r requirements.txt
 pip install .
 ```
@@ -217,7 +214,7 @@ This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) fi
 ## Acknowledgements
 
 - This project uses [llama.cpp](https://github.com/ggerganov/llama.cpp), [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) for running large language models. The default model is [Llama 3.2](https://github.com/facebookresearch/llama) by Meta AI Research.
-- Speech recognition is powered by [whisper.cpp](hhttps://github.com/ggerganov/whisper.cpp) and [pywhispercpp](https://github.com/abdeladim-s/pywhispercpp).
+- Speech recognition is powered by [whisper.cpp](hhttps://github.com/ggerganov/whisper.cpp) and [whispercpp.py](https://github.com/stlukey/whispercpp.py).
 
 ## Star History
 

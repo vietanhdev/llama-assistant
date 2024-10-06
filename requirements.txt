@@ -1,9 +1,9 @@
-PyQt6==6.7.1
+PyQt5==5.5.10
 SpeechRecognition==3.10.4
 markdown==3.7
 pynput==1.7.7
-llama-cpp-python
+llama-cpp-python==0.3.1
 huggingface_hub==0.25.1
 openwakeword==0.6.0
 pyinstaller==6.10.0
-git+https://github.com/vietanhdev/pywhispercpp.git
+git+https://github.com/stlukey/whispercpp.py

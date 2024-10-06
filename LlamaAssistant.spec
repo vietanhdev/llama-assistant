@@ -22,19 +22,6 @@ elif os.name == 'posix':  # Linux
         so_path = os.path.join(package_path, 'llama_cpp', 'lib', f'lib{l}.so')
         datas.append((so_path, 'llama_cpp/lib'))
 
-# Collect pywhispercpp
-package_path = get_package_paths('pywhispercpp')[0]
-datas += collect_data_files('pywhispercpp')
-dll_extensions = [".so", ".pyd", ".dll", ".dylib"]
-# Glob all dll files in the package
-dll_files = []
-for root, dirs, files in os.walk(package_path):
-    for file in files:
-        if any(file.endswith(ext) for ext in dll_extensions):
-            dll_files.append(os.path.join(root, file))
-for dll_file in dll_files:
-    datas.append((dll_file, 'pywhispercpp'))
-
 datas += [
     ('llama_assistant/resources/*.onnx', 'llama_assistant/resources'),
     ('llama_assistant/resources/*.png', 'llama_assistant/resources'),

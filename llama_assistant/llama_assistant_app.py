@@ -5,7 +5,7 @@ from importlib import resources
 from pathlib import Path
 import traceback
 
-from PyQt6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QApplication,
     QMainWindow,
     QWidget,
@@ -18,8 +18,9 @@ from PyQt6.QtWidgets import (
     QLabel,
     QScrollArea,
     QMessageBox,
+    QShortcut,
 )
-from PyQt6.QtCore import (
+from PyQt5.QtCore import (
     Qt,
     QPoint,
     QSize,
@@ -27,13 +28,12 @@ from PyQt6.QtCore import (
     QThread,
     pyqtSignal,
 )
-from PyQt6.QtGui import (
+from PyQt5.QtGui import (
     QIcon,
     QPixmap,
     QColor,
     QPainter,
     QGuiApplication,
-    QShortcut,
     QKeySequence,
     QDragEnterEvent,
     QDropEvent,
@@ -527,7 +527,7 @@ class LlamaAssistant(QMainWindow):
     def process_image_with_prompt(self, image_path, prompt):
         self.show_chat_box()
         self.chat_box.append(
-            '<span style="color: #aaa;"><b>You:</b></span> [Uploaded an image: {image_path}]'
+            f'<span style="color: #aaa;"><b>You:</b></span> [Uploaded an image: {image_path}]'
         )
         self.chat_box.append(f'<span style="color: #aaa;"><b>You:</b></span> {prompt}')
         self.chat_box.append('<span style="color: #aaa;"><b>AI:</b></span> ')
@@ -662,12 +662,12 @@ class LlamaAssistant(QMainWindow):
             self.setFixedHeight(self.height() - 110)  # Decrease height after removing image
 
     def mousePressEvent(self, event):
-        self.oldPos = event.globalPosition().toPoint()
+        self.oldPos = event.globalPos()
 
     def mouseMoveEvent(self, event):
-        delta = QPoint(event.globalPosition().toPoint() - self.oldPos)
+        delta = QPoint(event.globalPos() - self.oldPos)
         self.move(self.x() + delta.x(), self.y() + delta.y())
-        self.oldPos = event.globalPosition().toPoint()
+        self.oldPos = event.globalPos()
 
     def on_wake_word_detected(self, model_name):
         self.show()

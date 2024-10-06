@@ -3,27 +3,22 @@ import time
 import os
 import re
 
-from PyQt6.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal
 import speech_recognition as sr
 
-from pywhispercpp.model import Model
-
+from whispercpp import Whisper
 from llama_assistant.config import llama_assistant_dir
 
 class SpeechRecognitionThread(QThread):
     finished = pyqtSignal(str)
     error = pyqtSignal(str)
-    WHISPER_THREADS = 4
-    WHISPER_LANGUAGE = "en"
-
+    WHISPER_THREADS = 1
     def __init__(self):
         super().__init__()
         self.stop_listening = False
 
         # Initialize Whisper model
-        self.whisper = Model(
-            "base.en", n_threads=self.WHISPER_THREADS
-        )
+        self.whisper = Whisper("tiny")
 
         # Create temporary folder for audio files
         self.tmp_audio_folder = llama_assistant_dir / "tmp_audio"
@@ -51,16 +46,13 @@ class SpeechRecognitionThread(QThread):
                         res = self.whisper.transcribe(
                             str(tmp_filepath)
                         )
-                        transcription = ""
-                        for r in res:
-                            transcription += r.text
-
-                        # Clean up transcription
-                        transcription = re.sub(r"\[.*\]", "", transcription)
-                        transcription = re.sub(r"\(.*\)", "", transcription)
-
-                        print(f"Transcription: {transcription}")
+                        transcription = self.whisper.extract_text(res)
                         os.remove(tmp_filepath)
+                        
+                        if isinstance(transcription, list):
+                            # Remove all "[BLANK_AUDIO]" from the transcription
+                            transcription = " ".join(transcription)
+                            transcription = re.sub(r"\[BLANK_AUDIO\]", "", transcription)
 
                         self.finished.emit(transcription)
                     except sr.WaitTimeoutError:
@@ -82,7 +74,7 @@ class SpeechRecognitionThread(QThread):
 
 # Demo code
 if __name__ == "__main__":
-    from PyQt6.QtWidgets import QApplication
+    from PyQt5.QtWidgets import QApplication
     import sys
 
     app = QApplication(sys.argv)

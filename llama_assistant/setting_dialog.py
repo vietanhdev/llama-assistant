@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from PyQt6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QDialog,
     QFormLayout,
     QPushButton,
@@ -16,8 +16,8 @@ from PyQt6.QtWidgets import (
     QListWidget,
     QLabel,
 )
-from PyQt6.QtCore import pyqtSignal, Qt
-from PyQt6.QtGui import QColor
+from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtGui import QColor
 from pynput import keyboard
 
 from llama_assistant.shortcut_recorder import ShortcutRecorder
