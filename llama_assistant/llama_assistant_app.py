@@ -686,12 +686,12 @@ class LlamaAssistant(QMainWindow):
             self.mic_button.setStyleSheet(
                 """
                 QPushButton {
-                    background-color: rgba(255, 0, 0, 0.5);
+                    background-color: rgba(240, 150, 20, 0.5);
                     border: none;
                     border-radius: 20px;
                 }
                 QPushButton:hover {
-                    background-color: rgba(255, 0, 0, 0.6);
+                    background-color: rgba(240, 150, 20, 0.6);
                 }
             """
             )
@@ -699,6 +699,23 @@ class LlamaAssistant(QMainWindow):
             self.speech_thread.finished.connect(self.on_speech_recognized)
             self.speech_thread.error.connect(self.on_speech_error)
             self.speech_thread.start()
+            
+            # Use QTimer to delay the application of the second style
+            QTimer.singleShot(500, self.update_mic_button_style)
+
+    def update_mic_button_style(self):
+        self.mic_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: rgba(255, 0, 0, 0.5);
+                border: none;
+                border-radius: 20px;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 0, 0, 0.6);
+            }
+        """
+        )
 
     def stop_voice_input(self):
         if self.speech_thread and self.speech_thread.isRunning():

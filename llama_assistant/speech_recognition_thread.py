@@ -14,10 +14,12 @@ class SpeechRecognitionThread(QThread):
     finished = pyqtSignal(str)
     error = pyqtSignal(str)
     WHISPER_THREADS = 1
+    MAX_RECORDING_TIME = 60  # Maximum recording time in seconds
 
     def __init__(self):
         super().__init__()
         self.stop_listening = False
+        self.recording = False
 
         # Initialize Whisper model
         self.whisper = Whisper("tiny")
@@ -31,11 +33,16 @@ class SpeechRecognitionThread(QThread):
         self.CHANNELS = 1
         self.RATE = 16000
         self.CHUNK = 1024
-        self.RECORD_SECONDS = 2  # Reduced to 2 seconds for more frequent transcription
+    
+    def wait_for_recording(self):
+        while not self.recording:
+            time.sleep(0.1)
 
     def run(self):
         self.stop_listening = False
         audio = pyaudio.PyAudio()
+        frames = []
+        start_time = time.time()
 
         try:
             stream = audio.open(format=self.FORMAT, channels=self.CHANNELS,
@@ -43,34 +50,37 @@ class SpeechRecognitionThread(QThread):
                                 frames_per_buffer=self.CHUNK)
 
             print("Always-on microphone activated. Listening...")
+            self.recording = True
 
-            while not self.stop_listening:
-                frames = []
-                for _ in range(0, int(self.RATE / self.CHUNK * self.RECORD_SECONDS)):
-                    data = stream.read(self.CHUNK)
-                    frames.append(data)
+            while not self.stop_listening and (time.time() - start_time) < self.MAX_RECORDING_TIME:
+                data = stream.read(self.CHUNK)
+                frames.append(data)
 
-                # Save audio data to temporary file
-                tmp_filepath = self.tmp_audio_folder / f"temp_audio_{time.time()}.wav"
-                wf = wave.open(str(tmp_filepath), 'wb')
-                wf.setnchannels(self.CHANNELS)
-                wf.setsampwidth(audio.get_sample_size(self.FORMAT))
-                wf.setframerate(self.RATE)
-                wf.writeframes(b''.join(frames))
-                wf.close()
+            self.recording = False
+            print("Stopped recording. Processing audio...")
 
-                # Transcribe audio
-                res = self.whisper.transcribe(str(tmp_filepath))
-                transcription = self.whisper.extract_text(res)
-                os.remove(tmp_filepath)
-                
-                if isinstance(transcription, list):
-                    # Remove all "[BLANK_AUDIO]" from the transcription
-                    transcription = " ".join(transcription)
-                    transcription = re.sub(r"\[BLANK_AUDIO\]", "", transcription)
+            # Save audio data to temporary file
+            tmp_filepath = self.tmp_audio_folder / f"temp_audio_{time.time()}.wav"
+            wf = wave.open(str(tmp_filepath), 'wb')
+            wf.setnchannels(self.CHANNELS)
+            wf.setsampwidth(audio.get_sample_size(self.FORMAT))
+            wf.setframerate(self.RATE)
+            wf.writeframes(b''.join(frames))
+            wf.close()
 
-                if transcription.strip():  # Only emit if there's non-empty transcription
-                    self.finished.emit(transcription)
+            # Transcribe audio
+            res = self.whisper.transcribe(str(tmp_filepath))
+            transcription = self.whisper.extract_text(res)
+            os.remove(tmp_filepath)
+            
+            if isinstance(transcription, list):
+                # Remove all "[BLANK_AUDIO]" from the transcription
+                transcription = " ".join(transcription)
+                transcription = re.sub(r"\[BLANK_AUDIO\]", "", transcription)
+
+
+            if transcription.strip():  # Only emit if there's non-empty transcription
+                self.finished.emit(transcription)
 
         except Exception as e:
             self.error.emit(f"An error occurred: {str(e)}")
@@ -123,12 +133,15 @@ if __name__ == "__main__":
 
         def stop_recognition(self):
             self.thread.stop()
-            self.status_label.setText("Always-on speech recognition stopped")
-            self.start_button.setEnabled(True)
+            self.status_label.setText("Processing recorded audio...")
+            self.start_button.setEnabled(False)
             self.stop_button.setEnabled(False)
 
         def on_finished(self, text):
             self.transcription_label.setText(f"Transcription: {text}")
+            self.status_label.setText("Speech recognition completed")
+            self.start_button.setEnabled(True)
+            self.stop_button.setEnabled(False)
 
         def on_error(self, error_message):
             self.status_label.setText(f"Error: {error_message}")
