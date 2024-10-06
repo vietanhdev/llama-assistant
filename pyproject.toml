@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llama-assistant"
-version = "0.1.35"
+version = "0.1.37"
 authors = [
     {name = "Viet-Anh Nguyen", email = "vietanh.dev@gmail.com"},
 ]

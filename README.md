@@ -14,6 +14,8 @@
 ![Stars](https://img.shields.io/github/stars/vietanhdev/llama-assistant.svg)
 ![Forks](https://img.shields.io/github/forks/vietanhdev/llama-assistant.svg)
 ![Issues](https://img.shields.io/github/issues/vietanhdev/llama-assistant.svg)
+[![Downloads](https://static.pepy.tech/badge/llama-assistant)](https://pepy.tech/project/llama-assistant)
+[![Downloads](https://static.pepy.tech/badge/llama-assistant/month)](https://pepy.tech/project/llama-assistant)
 
 <a href="https://www.producthunt.com/products/llama-assistant/reviews?utm_source=badge-product_review&utm_medium=badge&utm_souce=badge-llama&#0045;assistant" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=610711&theme=light" alt="Llama&#0032;Assistant - Local&#0032;AI&#0032;Assistant&#0032;That&#0032;Respects&#0032;Your&#0032;Privacy&#0033;&#0032;🔒 | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
