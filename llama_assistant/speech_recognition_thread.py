@@ -1,7 +1,7 @@
-from pathlib import Path
 import time
 import os
 import re
+import traceback
 
 from PyQt5.QtCore import QThread, pyqtSignal
 import pyaudio
@@ -71,7 +71,6 @@ class SpeechRecognitionThread(QThread):
             # Transcribe audio
             res = self.whisper.transcribe(str(tmp_filepath))
             transcription = self.whisper.extract_text(res)
-            os.remove(tmp_filepath)
             
             if isinstance(transcription, list):
                 # Remove all "[BLANK_AUDIO]" from the transcription
@@ -82,7 +81,10 @@ class SpeechRecognitionThread(QThread):
             if transcription.strip():  # Only emit if there's non-empty transcription
                 self.finished.emit(transcription)
 
+            os.remove(tmp_filepath)
+
         except Exception as e:
+            traceback.print_exc()
             self.error.emit(f"An error occurred: {str(e)}")
         finally:
             stream.stop_stream()
