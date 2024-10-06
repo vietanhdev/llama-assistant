@@ -160,7 +160,7 @@ class SettingsDialog(QDialog):
         self.shortcut_recorder.setText(config.DEFAULT_LAUNCH_SHORTCUT)
 
     def update_hey_llama_mic_state(self, state):
-        self.hey_llama_mic_checkbox.setEnabled(state == Qt.CheckState.Checked.value)
+        self.hey_llama_mic_checkbox.setEnabled(state == Qt.Checked)
 
     def load_settings(self):
         if config.settings_file.exists():
