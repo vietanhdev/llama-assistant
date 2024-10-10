@@ -10,6 +10,7 @@ import wave
 from whispercpp import Whisper
 from llama_assistant.config import llama_assistant_dir
 
+
 class SpeechRecognitionThread(QThread):
     finished = pyqtSignal(str)
     error = pyqtSignal(str)
@@ -33,7 +34,7 @@ class SpeechRecognitionThread(QThread):
         self.CHANNELS = 1
         self.RATE = 16000
         self.CHUNK = 1024
-    
+
     def wait_for_recording(self):
         while not self.recording:
             time.sleep(0.1)
@@ -45,9 +46,13 @@ class SpeechRecognitionThread(QThread):
         start_time = time.time()
 
         try:
-            stream = audio.open(format=self.FORMAT, channels=self.CHANNELS,
-                                rate=self.RATE, input=True,
-                                frames_per_buffer=self.CHUNK)
+            stream = audio.open(
+                format=self.FORMAT,
+                channels=self.CHANNELS,
+                rate=self.RATE,
+                input=True,
+                frames_per_buffer=self.CHUNK,
+            )
 
             print("Always-on microphone activated. Listening...")
             self.recording = True
@@ -61,22 +66,21 @@ class SpeechRecognitionThread(QThread):
 
             # Save audio data to temporary file
             tmp_filepath = self.tmp_audio_folder / f"temp_audio_{time.time()}.wav"
-            wf = wave.open(str(tmp_filepath), 'wb')
+            wf = wave.open(str(tmp_filepath), "wb")
             wf.setnchannels(self.CHANNELS)
             wf.setsampwidth(audio.get_sample_size(self.FORMAT))
             wf.setframerate(self.RATE)
-            wf.writeframes(b''.join(frames))
+            wf.writeframes(b"".join(frames))
             wf.close()
 
             # Transcribe audio
             res = self.whisper.transcribe(str(tmp_filepath))
             transcription = self.whisper.extract_text(res)
-            
+
             if isinstance(transcription, list):
                 # Remove all "[BLANK_AUDIO]" from the transcription
                 transcription = " ".join(transcription)
                 transcription = re.sub(r"\[BLANK_AUDIO\]", "", transcription)
-
 
             if transcription.strip():  # Only emit if there's non-empty transcription
                 self.finished.emit(transcription)
@@ -94,6 +98,7 @@ class SpeechRecognitionThread(QThread):
     def stop(self):
         self.stop_listening = True
         print("Stopping always-on microphone...")
+
 
 # Updated demo code
 if __name__ == "__main__":

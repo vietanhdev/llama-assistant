@@ -67,7 +67,7 @@ DEFAULT_MODELS = [
         "model_type": "text",
         "model_path": None,
         "repo_id": "lmstudio-community/gemma-2-2b-it-GGUF",
-        "filename": "gemma-2-2b-it-Q4_K_M.gguf"
+        "filename": "gemma-2-2b-it-Q4_K_M.gguf",
     },
     {
         "model_name": "Moondream2",
