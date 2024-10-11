@@ -182,9 +182,9 @@ class LlamaAssistant(QMainWindow):
     def on_task_button_clicked(self):
         button = self.sender()
         task = button.text()
+        message = self.ui_manager.input_field.toPlainText()
         if message == "":
             return
-        message = self.ui_manager.input_field.toPlainText()
         self.process_text(message, task)
 
     def process_text(self, message, task="chat"):
